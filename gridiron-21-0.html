@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Draft 10 players from football legends and 2026 stars, then sim a season against history's best teams. New Daily Draft every day — can you go 21-0?">
+<meta property="og:title" content="Gridiron 21-0 · Draft a Perfect Season">
+<meta property="og:description" content="Draft legends and current stars, sim a season against all-time great teams, and chase a perfect 21-0.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#070A14">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏈</text></svg>">
+<title>Gridiron 21-0 · Draft a Perfect Season</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070A14; --field:#070A14; --field2:#070A14;
+  --panel:#16276E; --panel2:#0E1A52;
+  --line:#FCFCFC; --line2:#3CBCFC;
+  --ink:#FCFCFC; --mut:#A9BAEC; --mut2:#8597CE;
+  --gold:#F8B800; --gold2:#FFD23F;
+  --good:#00D800; --bad:#FC5454; --warn:#FF7A18;
+  --off:#3CBCFC; --def:#F8B800; --blue:#3CBCFC;
+  --shadow:4px 4px 0 #000;
+  --f-pix:'Press Start 2P',monospace;
+  --f-body:'VT323',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;border-radius:0!important}
+html,body{height:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{
+  font-family:var(--f-body);color:var(--ink);font-size:19px;line-height:1.28;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 78px, rgba(60,188,252,.05) 78px 80px),
+    #070A14;
+  min-height:100vh;image-rendering:pixelated;
+}
+/* CRT scanlines (subtle) */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.10) 0 1px, transparent 1px 3px)}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 16px 60px}
+h1,h2,h3{font-family:var(--f-pix);letter-spacing:0;line-height:1.5}
+button{font-family:var(--f-body);cursor:pointer;border:none;color:inherit}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+b{font-weight:400;color:var(--ink)}
+h2[tabindex="-1"]:focus{outline:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ---------- top brand ---------- */
+.brand{display:flex;align-items:center;gap:12px;justify-content:center;margin:8px 0 6px}
+.brand .pill{font-family:var(--f-pix);font-size:11px;letter-spacing:1px;
+  color:#070A14;background:var(--gold);padding:7px 9px;border:3px solid #000;box-shadow:var(--shadow)}
+.brand h1{font-family:var(--f-pix);font-size:22px;letter-spacing:1px;color:#FCFCFC;text-shadow:3px 3px 0 #E40058}
+.tag-sub{text-align:center;color:var(--blue,#3CBCFC);font-size:18px;margin:6px 0 20px;letter-spacing:1px;text-transform:uppercase}
+
+/* ---------- screens ---------- */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ---------- panels (shared block look) ---------- */
+.hero,.topbar,.card,.sidebar,.res-card,.sim-top,.matchup,.gamelog,.proj-col,.analysis{
+  background:var(--panel);border:3px solid var(--line);box-shadow:var(--shadow)}
+
+/* ---------- start ---------- */
+.hero{padding:26px 24px;max-width:760px;margin:0 auto}
+.hero h2{font-family:var(--f-pix);font-size:17px;line-height:1.6;letter-spacing:0;margin-bottom:14px}
+.hero h2 .au{color:var(--gold);text-shadow:2px 2px 0 #000}
+.hero .lede{color:var(--ink);font-size:18px;line-height:1.4;margin-bottom:20px}
+.hero .lede b{color:var(--gold)}
+.rules{display:grid;gap:11px;margin-bottom:22px}
+.rule{display:flex;gap:13px;align-items:flex-start;background:var(--panel2);
+  border:2px solid var(--line2);padding:13px 14px}
+.rule .ic{font-family:var(--f-pix);color:var(--gold);font-size:14px;min-width:30px;text-align:center;padding-top:3px}
+.rule b{color:var(--gold);font-size:18px}
+.rule .d{color:var(--mut);font-size:17px;line-height:1.35}
+.rule .d i{color:var(--blue,#3CBCFC);font-style:normal}
+.cta{display:block;width:100%;font-family:var(--f-pix);font-size:15px;letter-spacing:1px;
+  color:#070A14;background:var(--gold);padding:16px;border:3px solid #000;box-shadow:5px 5px 0 #000;
+  transition:transform .07s, box-shadow .07s}
+.cta:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #000}
+.cta:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+
+/* ---------- draft topbar ---------- */
+.topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 16px;margin-bottom:16px}
+.tb-round{font-family:var(--f-pix);font-size:15px;letter-spacing:0;color:var(--gold)}
+.tb-round small{display:block;font-family:var(--f-body);font-size:14px;color:var(--mut);letter-spacing:1px;text-transform:uppercase}
+.progress{flex:1;min-width:160px;height:14px;background:#000;overflow:hidden;border:2px solid var(--line)}
+.progress>i{display:block;height:100%;width:0;background:var(--gold);transition:width .2s steps(8)}
+.respin-btn{display:flex;align-items:center;gap:8px;font-family:var(--f-body);font-size:18px;letter-spacing:.5px;
+  background:var(--panel2);border:3px solid var(--line2);color:var(--ink);padding:8px 13px;box-shadow:var(--shadow);transition:.08s}
+.respin-btn:hover:not(:disabled){background:#1B348A;transform:translate(-1px,-1px)}
+.respin-btn:disabled{opacity:.4;cursor:not-allowed}
+.respin-btn .n{font-family:var(--f-pix);font-size:11px;color:#070A14;background:var(--gold);padding:4px 7px}
+
+.draft-grid{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
+@media(max-width:860px){.draft-grid{grid-template-columns:1fr}}
+
+.prompt{font-family:var(--f-body);letter-spacing:1px;color:var(--mut);font-size:18px;
+  text-transform:uppercase;margin:2px 2px 12px}
+.prompt b{color:var(--gold)}
+
+/* ---------- player cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:680px){.cards{grid-template-columns:1fr}}
+.card{position:relative;padding:0 0 14px;overflow:hidden;display:flex;flex-direction:column;transition:transform .08s}
+.card:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #000}
+.card .topstripe{height:6px;width:100%}
+.card .hd{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 12px 0;gap:8px}
+.pos-badge{font-family:var(--f-pix);font-size:11px;letter-spacing:0;padding:6px 7px;color:#070A14;border:2px solid #000}
+.side-tag{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin-top:6px}
+.ovr-wrap{text-align:right;line-height:1}
+.ovr{font-family:var(--f-pix);font-size:24px;color:var(--gold2)}
+.ovr small{display:block;font-family:var(--f-body);font-size:14px;color:var(--mut2);letter-spacing:1px;margin-top:4px}
+.yr{font-family:var(--f-body);font-size:15px;color:var(--mut);letter-spacing:1px}
+.pname{font-family:var(--f-body);font-size:25px;letter-spacing:.5px;padding:9px 12px 0;line-height:1}
+.legend-tag{display:inline-block;margin-left:6px;font-family:var(--f-pix);font-size:8px;letter-spacing:0;
+  color:#070A14;background:var(--gold);border:2px solid #000;padding:3px 5px;vertical-align:middle}
+.card.legend{border-color:var(--gold)}
+.card.legend .ovr{color:var(--gold2)}
+.statline.build .szn{color:var(--blue,#3CBCFC)}
+.arch{padding:4px 12px 0;color:var(--blue,#3CBCFC);font-size:16px;text-transform:uppercase;letter-spacing:.5px}
+.attrs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:11px 12px 0}
+.attr{display:flex;justify-content:space-between;align-items:center;background:#000;
+  border:2px solid var(--line2);padding:5px 8px}
+.attr .lab{font-size:14px;letter-spacing:1px;color:var(--mut)}
+.attr .val{font-family:var(--f-pix);font-size:12px;color:var(--ink)}
+.statline{margin:11px 12px 0;padding-top:9px;border-top:2px solid var(--line2);
+  font-size:15px;color:var(--mut);letter-spacing:.3px;line-height:1.3}
+.statline .szn{color:var(--gold);text-transform:uppercase}
+.pick-btn{margin:13px 12px 0;font-family:var(--f-pix);font-size:13px;letter-spacing:1px;
+  color:#070A14;background:var(--good);padding:11px;border:3px solid #000;box-shadow:3px 3px 0 #000;transition:.07s}
+.pick-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #000}
+.pick-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+.pick-btn:disabled{cursor:not-allowed;opacity:.72}
+.card.picked{border-color:var(--good);box-shadow:0 0 0 3px var(--good),var(--shadow)}
+.card.picked .pick-btn{background:var(--gold);color:#070A14}
+
+/* ---------- roster sidebar ---------- */
+.sidebar{padding:14px;position:sticky;top:14px}
+.sb-title{font-family:var(--f-body);font-size:21px;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;display:flex;justify-content:space-between;align-items:baseline}
+.sb-title .cnt{font-family:var(--f-body);font-size:15px;color:var(--mut)}
+.sb-sub{font-size:14px;color:var(--mut2);margin-bottom:12px;letter-spacing:.3px}
+.depth{display:grid;gap:5px}
+.slot{display:flex;align-items:center;gap:8px;background:#000;border:2px solid var(--line2);
+  padding:7px 9px;font-size:17px}
+.slot .sp{font-family:var(--f-pix);font-size:10px;letter-spacing:0;min-width:30px;color:var(--mut)}
+.slot .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot .so{font-family:var(--f-pix);font-size:12px;color:var(--gold2)}
+.slot.empty .nm{color:var(--mut2)}
+.slot.empty .so{color:var(--mut2)}
+.slot.fill .nm{color:var(--mut)}
+.slot.just{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+
+/* ---------- results ---------- */
+.res-card{overflow:hidden;max-width:920px;margin:0 auto}
+.scoreboard{position:relative;text-align:center;padding:30px 20px 24px;
+  background:repeating-linear-gradient(90deg, transparent 0 38px, rgba(60,188,252,.10) 38px 40px),#000;
+  border-bottom:3px solid var(--line)}
+.sb-label{font-family:var(--f-pix);letter-spacing:1px;font-size:11px;color:var(--blue,#3CBCFC);text-transform:uppercase}
+.record{font-family:var(--f-pix);font-size:54px;line-height:1.05;letter-spacing:0;margin:14px 0 8px}
+.record .w{color:var(--gold2)}.record .sep{color:var(--mut2);margin:0 4px}.record .l{color:var(--ink)}
+.record.perfect .w,.record.perfect .l{color:var(--gold2);text-shadow:0 0 0 #000, 3px 3px 0 #E40058}
+.verdict{font-family:var(--f-body);font-size:24px;letter-spacing:1px;text-transform:uppercase}
+.verdict.gold{color:var(--gold2)}
+.banner-sub{color:var(--mut);font-size:17px;margin-top:10px;max-width:580px;margin-left:auto;margin-right:auto;line-height:1.35}
+
+.res-body{padding:20px}
+.grade-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.gcard{text-align:center;background:#000;border:3px solid var(--line2);padding:13px 10px}
+.gcard .t{font-family:var(--f-body);letter-spacing:1px;font-size:15px;color:var(--mut);text-transform:uppercase}
+.gcard .g{font-family:var(--f-pix);font-size:26px;line-height:1.3;margin-top:4px}
+.gcard .v{font-size:14px;color:var(--mut2);font-family:var(--f-body);margin-top:2px}
+.gcard.team{border-color:var(--gold)}
+.gcard.team .g{color:var(--gold2)}
+.gcard.offense .g{color:var(--off)}
+.gcard.defense .g{color:var(--def)}
+
+.sect-h{font-family:var(--f-body);font-size:21px;letter-spacing:2px;margin:8px 0 13px;
+  display:flex;align-items:center;gap:10px;text-transform:uppercase;color:var(--gold)}
+.sect-h::after{content:'';flex:1;height:3px;background:var(--line2)}
+
+.units{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;margin-bottom:22px}
+@media(max-width:680px){.units{grid-template-columns:1fr}}
+.unit{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.unit .un{font-size:17px}
+.unit .un .sd{font-size:13px;letter-spacing:1px;color:var(--mut2);margin-left:6px}
+.unit .ug{font-family:var(--f-pix);font-size:14px;text-align:right}
+.unit .bar{grid-column:1/3;height:12px;background:#000;overflow:hidden;border:2px solid var(--line2)}
+.unit .bar>i{display:block;height:100%;transition:width .5s steps(10)}
+
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+@media(max-width:680px){.sw-grid{grid-template-columns:1fr}}
+.sw-box{background:#000;border:3px solid var(--line2);padding:14px}
+.sw-box h4{font-family:var(--f-body);letter-spacing:1px;font-size:18px;margin-bottom:10px;text-transform:uppercase}
+.sw-box.s{border-color:var(--good)}.sw-box.w{border-color:var(--bad)}
+.sw-box.s h4{color:var(--good)}.sw-box.w h4{color:var(--bad)}
+.sw-item{display:flex;align-items:center;gap:9px;font-size:16px;padding:5px 0;color:var(--mut)}
+.sw-item .dot{width:9px;height:9px;flex-shrink:0}
+.sw-box.s .dot{background:var(--good)}.sw-box.w .dot{background:var(--bad)}
+.sw-item b{color:var(--ink)}
+
+.depth-final{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:22px}
+@media(max-width:680px){.depth-final{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.depth-final{grid-template-columns:1fr}}
+.df-slot{background:#000;border:2px solid var(--line2);padding:8px 10px}
+.df-slot .r1{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.df-slot .sp{font-family:var(--f-pix);font-size:10px;color:var(--mut)}
+.df-slot .so{font-family:var(--f-pix);font-size:12px;color:var(--gold2)}
+.df-slot .nm{font-size:16px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.df-slot.fill{opacity:.62}.df-slot.fill .nm{color:var(--mut)}.df-slot.fill .so{color:var(--mut2)}
+
+.res-actions{display:flex;gap:12px;flex-wrap:wrap}
+.res-actions button{flex:1;min-width:160px;font-family:var(--f-pix);font-size:13px;letter-spacing:1px;padding:15px;border:3px solid #000;box-shadow:4px 4px 0 #000;transition:.07s}
+.res-actions button:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #000}
+.res-actions button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+.btn-again{color:#070A14;background:var(--gold)}
+.btn-share{color:#070A14;background:var(--good)}
+/* daily draft + badges */
+.mode-select{display:grid;gap:10px}
+.cta.alt{background:var(--panel2);color:var(--ink);font-size:13px;padding:13px}
+.daily-sub{text-align:center;color:var(--mut);font-size:17px;letter-spacing:.5px;margin:-2px 0 4px}
+.daily-sub b{color:var(--gold2)}
+.start-stats{margin-top:18px}
+.mode-badge{font-family:var(--f-pix);font-size:10px;padding:6px 8px;border:2px solid #000;background:var(--blue);color:#070A14;white-space:nowrap}
+.mode-badge.daily{background:var(--gold)}
+.daily-res{margin-top:14px;display:inline-block;font-size:18px;letter-spacing:1px;text-transform:uppercase;color:#070A14;background:var(--gold);border:3px solid #000;padding:4px 12px;box-shadow:3px 3px 0 #000}
+.stat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px}
+@media(max-width:640px){.stat-grid{grid-template-columns:repeat(3,1fr)}}
+.stat{background:#000;border:2px solid var(--line2);text-align:center;padding:9px 4px}
+.stat .n{display:block;font-family:var(--f-pix);font-size:15px;color:var(--gold2);line-height:1.4}
+.stat .t{display:block;font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.dist-row{display:grid;grid-template-columns:128px 1fr;gap:8px;align-items:center;font-size:16px;margin:4px 0;color:var(--mut)}
+.dist-bar{background:var(--panel2);height:22px;border:2px solid var(--line2)}
+.dist-bar>i{display:block;height:100%;background:var(--mut2);min-width:24px;text-align:right;font-style:normal;font-family:var(--f-pix);font-size:9px;color:#000;padding:5px 5px 0}
+.dist-row.hit{color:var(--ink)}
+.dist-row.hit .dist-bar>i{background:var(--good)}
+.award-tag{display:inline-block;margin-left:6px;font-family:var(--f-pix);font-size:8px;letter-spacing:0;color:#070A14;background:var(--blue);border:2px solid #000;padding:3px 5px;vertical-align:middle}
+.award-tag.rookie{background:var(--good)}
+.award-tag.major{background:#FC5454;color:#fff}
+.pb-line{margin-top:12px;font-size:17px;color:var(--mut);letter-spacing:1px;text-transform:uppercase}
+.pb-line .new{color:#070A14;background:var(--gold);padding:2px 8px;margin-left:6px;border:2px solid #000}
+.share-out{background:#000;border:3px solid var(--good);padding:12px;margin-bottom:14px}
+.share-msg{color:var(--good);font-size:17px;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.share-out textarea{width:100%;background:#070A14;color:var(--ink);border:2px solid var(--line2);font-family:var(--f-body);font-size:17px;padding:8px;resize:vertical}
+.btn-ghost{background:var(--panel);color:var(--ink);border-color:var(--line2);box-shadow:4px 4px 0 #000}
+
+.disclaimer{text-align:center;color:var(--mut2);font-size:14px;line-height:1.4;margin:22px auto 0;max-width:660px;letter-spacing:.2px}
+.foot{text-align:center;color:var(--mut2);font-size:14px;margin-top:26px;letter-spacing:.5px;text-transform:uppercase}
+
+/* ---------- sim playback ---------- */
+.sim-shell{max-width:840px;margin:0 auto}
+.sim-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:11px 16px;margin-bottom:14px}
+.sim-top .rnd{font-family:var(--f-pix);font-size:13px;letter-spacing:0;color:var(--gold)}
+.sim-top .rnd small{display:block;font-family:var(--f-body);font-size:14px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.sim-rec{font-family:var(--f-pix);font-size:18px;letter-spacing:0}
+.sim-rec .w{color:var(--gold2)}.sim-rec .l{color:var(--mut)}
+.sim-controls{display:flex;gap:8px;flex-wrap:wrap}
+.sim-skip{font-family:var(--f-body);font-size:17px;letter-spacing:.5px;background:var(--panel2);
+  border:3px solid var(--line2);color:var(--ink);padding:8px 14px;box-shadow:3px 3px 0 #000;transition:.07s}
+.sim-skip:hover{background:#1B348A;transform:translate(-1px,-1px)}
+.sim-skip:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+
+.matchup{overflow:hidden;margin-bottom:14px}
+.mu-field{position:relative;padding:22px 18px 18px;
+  background:repeating-linear-gradient(90deg, transparent 0 46px, rgba(255,255,255,.45) 46px 49px),
+   linear-gradient(180deg,#0E7A2E,#0A5E23)}
+.mu-roundlbl{text-align:center;font-family:var(--f-pix);letter-spacing:0;font-size:11px;color:#fff;text-transform:uppercase;margin-bottom:16px;text-shadow:2px 2px 0 #000}
+.mu-roundlbl.po{color:var(--gold2)}
+.mu-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.mu-team{text-align:center}
+.mu-team .nm{overflow-wrap:anywhere;font-family:var(--f-body);font-size:22px;letter-spacing:.5px;line-height:1.05;color:#fff;text-shadow:1px 1px 0 #000}
+.mu-team .yr{font-family:var(--f-body);font-size:16px;color:#CFE8D6;letter-spacing:1px}
+.mu-team .od{font-size:14px;color:#BFE0C8;margin-top:6px;letter-spacing:.3px}
+.mu-team .od b{color:#fff}
+.mu-team.you .nm{color:var(--gold2);text-shadow:1px 1px 0 #000}
+.mu-score{font-family:var(--f-pix);font-size:30px;line-height:1;min-width:48px;text-align:center;color:#fff;text-shadow:2px 2px 0 #000}
+.mu-vs{font-family:var(--f-pix);font-size:12px;color:#fff;text-shadow:1px 1px 0 #000}
+.mu-result{text-align:center;padding:12px;font-family:var(--f-pix);font-size:15px;letter-spacing:1px;border-top:3px solid var(--line)}
+.mu-result.win{color:#070A14;background:var(--good)}
+.mu-result.loss{color:#070A14;background:var(--bad)}
+.mu-result.pending{color:var(--mut2);background:var(--panel2)}
+
+.gamelog{padding:6px;max-height:300px;overflow-y:auto}
+.log-row{display:grid;grid-template-columns:90px 1fr auto auto;gap:10px;align-items:center;padding:8px 10px;font-size:16px}
+.log-row+.log-row{border-top:2px solid var(--line2)}
+.log-row.po{background:rgba(248,184,0,.10)}
+.log-row .lw{font-family:var(--f-body);font-size:15px;letter-spacing:.5px;color:var(--mut2);white-space:nowrap;overflow:hidden;text-transform:uppercase}
+.log-row .lo{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-row .lo b{color:var(--ink)}
+.log-row .ls{font-family:var(--f-pix);font-size:12px;color:var(--mut)}
+.log-row .lr{font-family:var(--f-pix);font-size:11px;width:24px;text-align:center;padding:4px 0;color:#070A14}
+.log-row .lr.w{background:var(--good)}
+.log-row .lr.l{background:var(--bad);color:#070A14}
+
+/* results game log compact */
+.res-log{margin-bottom:22px}
+
+/* analysis + synergy + projected stats */
+.analysis{font-size:18px;line-height:1.4;color:var(--ink);border-left:6px solid var(--gold);padding:14px 16px;margin-bottom:22px}
+.analysis b{color:var(--gold2)}
+.synergy{display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
+.syn-item{display:flex;gap:11px;align-items:flex-start;background:#000;border:2px solid var(--line2);
+  padding:12px 13px;font-size:17px;line-height:1.35}
+.syn-item .si{font-size:18px;line-height:1.2}
+.syn-item b{color:var(--gold2)}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:22px}
+@media(max-width:640px){.proj-grid{grid-template-columns:1fr}}
+.proj-col{padding:6px}
+.proj-head{font-family:var(--f-body);font-size:18px;letter-spacing:1px;text-transform:uppercase;padding:8px 9px 10px}
+.proj-head.off{color:var(--off)}.proj-head.def{color:var(--def)}
+.proj-row{display:grid;grid-template-columns:32px 1fr;gap:9px;align-items:center;padding:9px}
+.proj-row+.proj-row{border-top:2px solid var(--line2)}
+.proj-row .pp{font-family:var(--f-pix);font-size:9px;text-align:center;padding:6px 0;color:#070A14;border:2px solid #000}
+.proj-row .pn{font-size:18px;line-height:1.1}
+.proj-row .pn .leg{font-size:11px;color:var(--gold2);letter-spacing:1px;font-family:var(--f-body);margin-left:5px}
+.proj-row .ps{font-size:15px;color:var(--mut);margin-top:3px}
+.proj-row .pn small{color:var(--mut2);font-size:15px}
+
+/* touch polish */
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+.nw{white-space:nowrap}
+.howto-h{font-size:18px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin:22px 0 10px;border-top:2px solid var(--line2);padding-top:16px}
+.mode-select{margin-bottom:6px}
+.cta{line-height:1.7}
+.storage-warn{margin-top:12px;color:var(--warn);font-size:16px;line-height:1.3}
+.brand h1{white-space:nowrap}
+@media(hover:none){.card:hover,.cta:hover,.pick-btn:hover,.res-actions button:hover{transform:none}.card:hover{box-shadow:var(--shadow)}}
+@media(max-width:600px){
+  .wrap{padding:12px 10px 40px}
+  body:not([data-screen="start"]) .tag-sub{display:none}
+  body:not([data-screen="start"]) .brand{margin:2px 0 12px}
+  .hero{padding:18px 16px}
+  .topbar{padding:10px 12px;gap:10px;margin-bottom:12px}
+  .card .hd{padding:10px 10px 0}.pname{padding:7px 10px 0;font-size:23px}.arch{padding:2px 10px 0}
+  .attrs{padding:8px 10px 0;gap:5px}.attr{padding:4px 7px}
+  .statline{margin:8px 10px 0;padding-top:7px}.pick-btn{margin:10px 10px 0;padding:12px}
+  .side-tag{display:none}
+  .cta{font-size:13px;padding:14px 10px}
+  .res-body{padding:14px}
+}
+@media(max-width:360px){
+  .brand{gap:8px}.brand .pill{font-size:9px;padding:5px 6px}.brand h1{font-size:13px}
+  .record{font-size:34px}
+}
+@media(max-width:520px){
+  .brand h1{font-size:15px}
+  .hero h2{font-size:13px;line-height:1.7}
+  .record{font-size:40px}
+  .mu-score{font-size:22px}
+  .gcard .g{font-size:20px}
+  body{font-size:18px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap" id="game">
+  <div class="brand">
+    <span class="pill">DRAFT</span>
+    <h1>GRIDIRON 21<span style="color:var(--mut2)">-</span>0</h1>
+  </div>
+  <div class="tag-sub">Draft legends · build a roster · chase the perfect season</div>
+  <div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ============ START ============ -->
+  <section id="screen-start" class="screen active" aria-labelledby="startTitle">
+    <div class="hero">
+      <h2 id="startTitle" tabindex="-1">Can you draft a <span class="au">21-0</span> season?</h2>
+      <div class="mode-select">
+        <button class="cta" id="dailyBtn">PLAY DAILY DRAFT</button>
+        <div class="daily-sub" id="dailySub"></div>
+        <button class="cta alt" id="startBtn">FREE PLAY</button>
+      </div>
+      <div class="start-stats" id="startStats" hidden></div>
+      <p class="storage-warn" id="storageWarn" hidden>⚠ This browser isn't saving game data, so your Daily attempt and stats won't be remembered.</p>
+      <div class="howto-h">How to play</div>
+      <p class="lede">You get <b>10 picks</b> to assemble a 15-man starting roster. Each round, three players flash on the board — choose one. The five jobs you can't fill get a generic <b>league-average starter</b>. Your finished roster is graded by a multi-factor model into a record out of a possible <b>17-0 regular season + 4 playoff wins = 21-0</b> — then you watch that season play out against real historical teams, with the playoffs pitting you against the all-time greats.</p>
+      <div class="rules">
+        <div class="rule"><div class="ic">10</div><div><b>Ten picks, fifteen slots.</b><div class="d">Position caps: QB1 · RB1 · WR2 · TE1 · OL2 · DL2 · LB2 · CB2 · S2. You can't fill them all — decide which five spots to punt to an average starter.</div></div></div>
+        <div class="rule"><div class="ic">2</div><div><b>Two re-spins. For the entire game.</b><div class="d">Hate all three cards? Re-spin the board — but you only get two re-spins total across all ten rounds. Spend them wisely.</div></div></div>
+        <div class="rule"><div class="ic">★</div><div><b>Legends and current stars.</b><div class="d"><i>Legends</i> are historic seasons with real stats — rarer on the board, and they hit harder. <i>Current players</i> are rated for 2026 by archetype, with badges for last season's award winners, All-Pros and rookies. Read the attributes, not just the OVR.</div></div></div>
+        <div class="rule"><div class="ic">📅</div><div><b>Daily Draft.</b><div class="d">One locked-in draft per day. Your boards are random and unique to you, and they're saved as you go, so refreshing won't reroll them. Share your result and compare records with friends. Free Play is unlimited and fully random every time.</div></div></div>
+        <div class="rule"><div class="ic">⚖</div><div><b>Balance wins titles.</b><div class="d">A great offense with no defense can win games but gets exposed in January. The deep playoff rounds demand a roster that's strong on <i>both</i> sides. 21-0 is rare by design.</div></div></div>
+      </div>
+    </div>
+    <p class="disclaimer">Current-player ratings reflect the 2026 season; legend ratings and stats reflect the labeled season. All ratings are gameplay approximations for entertainment only. Not affiliated with the NFL or any team or player.</p>
+  </section>
+
+  <!-- ============ DRAFT ============ -->
+  <section id="screen-draft" class="screen" aria-labelledby="draftTitle">
+    <h2 id="draftTitle" class="sr-only" tabindex="-1">Draft board</h2>
+    <div class="topbar">
+      <span class="mode-badge" id="modeBadge">FREE PLAY</span>
+      <div class="tb-round"><small>Round</small><span id="roundNum">1</span> / 10</div>
+      <div class="progress" id="draftProgress" role="progressbar" aria-label="Draft progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><i id="progBar"></i></div>
+      <button class="respin-btn" id="respinBtn">↻ Re-spin board <span class="n" id="respinN">2</span></button>
+    </div>
+    <div class="draft-grid">
+      <div>
+        <div class="prompt" id="draftPrompt">Pick a player to fill an open slot</div>
+        <div class="cards" id="cards"></div>
+      </div>
+      <aside class="sidebar">
+        <div class="sb-title">Depth Chart <span class="cnt" id="rosterCnt">0 / 10 picks</span></div>
+        <div class="sb-sub">Unfilled slots become Average Starters at kickoff.</div>
+        <div class="depth" id="depth"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ SIM PLAYBACK ============ -->
+  <section id="screen-sim" class="screen" aria-labelledby="simTitle">
+    <h2 id="simTitle" class="sr-only" tabindex="-1">Season simulation</h2>
+    <div class="sim-shell">
+      <div class="sim-top">
+        <div class="rnd"><small><span id="simMode"></span><span id="simPhase">Regular Season</span></small><span id="simGameNo">Week 1</span></div>
+        <div class="sim-rec"><span class="w" id="simW">0</span><span class="l">-</span><span class="l" id="simL">0</span></div>
+        <div class="sim-controls">
+          <button class="sim-skip" id="simSkip" aria-label="Skip season simulation and view results">Skip to results ⏭</button>
+        </div>
+      </div>
+      <div class="matchup">
+        <div class="mu-field">
+          <div class="mu-roundlbl" id="muRound">Week 1</div>
+          <div class="mu-grid">
+            <div class="mu-team you"><div class="nm">YOUR TEAM</div><div class="yr" id="youYr">drafted</div><div class="od" id="youOD"></div></div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="mu-score" id="scoreYou">0</div><div class="mu-vs">–</div><div class="mu-score" id="scoreOpp">0</div>
+            </div>
+            <div class="mu-team opp"><div class="nm" id="oppNm">—</div><div class="yr" id="oppYr"></div><div class="od" id="oppOD"></div></div>
+          </div>
+        </div>
+        <div class="mu-result pending" id="muResult">— in progress —</div>
+      </div>
+      <div class="gamelog" id="liveLog" role="log" aria-live="polite" aria-relevant="additions text" aria-label="Season simulation log"></div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="screen-results" class="screen" aria-labelledby="resultsTitle">
+    <h2 id="resultsTitle" class="sr-only" tabindex="-1">Season results</h2>
+    <div class="res-card">
+      <div class="scoreboard">
+        <div class="sb-label">Final Season Record</div>
+        <div class="record" id="recordBig"></div>
+        <div class="verdict" id="verdict"></div>
+        <div class="banner-sub" id="bannerSub"></div>
+        <div class="pb-line" id="pbLine"></div>
+        <div class="daily-res" id="dailyRes" hidden></div>
+      </div>
+      <div class="res-body">
+        <div class="grade-row">
+          <div class="gcard offense"><div class="t">Offense</div><div class="g" id="gOff">A</div><div class="v" id="vOff"></div></div>
+          <div class="gcard team"><div class="t">Team Grade</div><div class="g" id="gTeam">A</div><div class="v" id="vTeam"></div></div>
+          <div class="gcard defense"><div class="t">Defense</div><div class="g" id="gDef">A</div><div class="v" id="vDef"></div></div>
+        </div>
+
+        <div id="dailyStatsWrap" hidden><div class="sect-h">Your Daily Record</div><div id="dailyStatsRes"></div></div>
+
+        <div class="sect-h">Unit Report</div>
+        <div class="units" id="units"></div>
+
+        <div class="sw-grid">
+          <div class="sw-box s"><h4>Strengths</h4><div id="strengths"></div></div>
+          <div class="sw-box w"><h4>Weaknesses</h4><div id="weaknesses"></div></div>
+        </div>
+
+        <div class="sect-h">Where It Was Won &amp; Lost</div>
+        <div class="analysis" id="analysis"></div>
+
+        <div class="sect-h">How the Lineup Fed Off Each Other</div>
+        <div class="synergy" id="synergy"></div>
+
+        <div class="sect-h">Projected Production</div>
+        <div class="proj-grid">
+          <div class="proj-col"><div class="proj-head off">Offense</div><div id="projOff"></div></div>
+          <div class="proj-col"><div class="proj-head def">Defense</div><div id="projDef"></div></div>
+        </div>
+
+        <div class="sect-h">Season Log</div>
+        <div class="gamelog res-log" id="resultLog"></div>
+
+        <div class="sect-h">Your Starting 15</div>
+        <div class="depth-final" id="depthFinal"></div>
+
+        <div class="share-out" id="shareOut" hidden>
+          <div class="share-msg" id="shareMsg"></div>
+          <textarea id="shareText" readonly rows="6" aria-label="Shareable result text"></textarea>
+        </div>
+        <div class="res-actions">
+          <button class="btn-share" id="shareBtn">SHARE RESULT</button>
+          <button class="btn-again" id="againBtn">DRAFT AGAIN</button>
+          <button class="btn-ghost" id="reviewBtn">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+    <p class="disclaimer">Ratings &amp; stats are gameplay approximations for the labeled season. Team success is computed from position attributes via a multi-factor model — not a single overall average.</p>
+  </section>
+
+  <div class="foot">Gridiron 21-0 · 2026 rosters · updated Sep 30, 2026</div>
+</main>
+
+<script>
+"use strict";
+/* ===================== DATA ===================== */
+/* attr order: QB[ARM,ACC,AWR,MOB] RB[SPD,ELU,PWR,CTH] WR[SPD,SEP,CTH,CON]
+   TE[CTH,SEP,RBK,SPD] OL[PBK,RBK,STR,AWR] DL[PRS,RDF,STR,MOT]
+   LB[TAK,COV,RDF,SPD] CB[COV,SPD,BALL,PRS] S[COV,RNG,BALL,RDF]
+   player formats: [name, year(0=current), ovr, [a,a,a,a], statline, archetype, badge] — badge: MVP/OPOY/DPOY/ALL-PRO/ROOKIE… for current players */
+const POOLS = {
+ QB:[
+  ["Peyton Manning",2013,99,[99,99,99,96],"5,477 yds · 55 TD · 10 INT","Field General",""],
+  ["Tom Brady",2007,97,[99,99,99,99],"4,806 yds · 50 TD · 8 INT","Gunslinger",""],
+  ["Aaron Rodgers",2011,97,[99,96,99,98],"4,643 yds · 45 TD · 6 INT","Gunslinger",""],
+  ["Patrick Mahomes",2018,96,[99,96,99,98],"5,097 yds · 50 TD · 12 INT","Gunslinger",""],
+  ["Dan Marino",1984,95,[99,95,99,96],"5,084 yds · 48 TD","Gunslinger",""],
+  ["Steve Young",1994,95,[99,96,98,99],"3,969 yds · 35 TD · 293 rush","Dual-Threat",""],
+  ["Drew Brees",2011,95,[99,99,99,92],"5,476 yds · 46 TD","Field General",""],
+  ["Joe Montana",1989,94,[96,99,99,89],"3,521 yds · 26 TD · 112.4 rtg","Field General",""],
+  ["Lamar Jackson",2019,94,[97,96,96,99],"36 TD · 1,206 rush · MVP","Dual-Threat",""],
+  ["Josh Allen",0,94,[98,92,94,99],"","Dual-Threat",""],
+  ["Kurt Warner",1999,93,[99,95,95,92],"4,353 yds · 41 TD","Gunslinger",""],
+  ["Matthew Stafford",0,93,[99,93,94,89],"","Gunslinger","MVP"],
+  ["Brett Favre",1995,92,[99,94,94,94],"4,413 yds · 38 TD","Gunslinger",""],
+  ["Drake Maye",0,91,[94,92,90,99],"","Dual-Threat",""],
+  ["Cam Newton",2015,90,[96,91,92,99],"35 TD · 636 rush · MVP","Dual-Threat",""],
+  ["Roger Staubach",1971,90,[91,99,99,87],"1,882 yds · 15 TD · SB MVP","Field General",""],
+  ["John Elway",1987,89,[99,90,94,90],"3,198 yds · 19 TD","Gunslinger",""],
+  ["Michael Vick",2010,88,[91,89,86,99],"21 TD · 676 rush · 100.2 rtg","Scrambler",""],
+  ["Joe Burrow",0,88,[92,95,93,74],"","Pocket Passer",""],
+  ["Justin Herbert",0,88,[98,87,89,87],"","Gunslinger",""],
+  ["Dak Prescott",0,88,[92,93,93,77],"","Pocket Passer",""],
+  ["Jared Goff",0,86,[86,91,93,72],"","Pocket Passer",""],
+  ["Sam Darnold",0,86,[94,86,87,81],"","Gunslinger",""],
+  ["Trevor Lawrence",0,85,[88,83,85,94],"","Dual-Threat",""],
+  ["Jalen Hurts",0,85,[86,82,85,96],"","Dual-Threat",""],
+  ["Caleb Williams",0,85,[88,86,84,96],"","Dual-Threat",""],
+  ["Jayden Daniels",0,84,[85,82,83,95],"","Dual-Threat",""],
+  ["Bo Nix",0,84,[83,87,93,77],"","Field General",""],
+  ["Jordan Love",0,84,[94,83,85,81],"","Gunslinger",""],
+  ["Baker Mayfield",0,83,[93,82,85,82],"","Gunslinger",""],
+  ["Brock Purdy",0,83,[85,90,92,77],"","Field General",""],
+  ["C.J. Stroud",0,81,[80,87,88,73],"","Field General",""],
+  ["Kyler Murray",0,80,[80,77,78,94],"","Scrambler",""],
+  ["Bryce Young",0,80,[80,86,90,71],"","Field General",""],
+  ["Tyler Shough",0,79,[79,87,86,66],"","Pocket Passer",""],
+  ["Jaxson Dart",0,78,[78,72,77,92],"","Scrambler",""],
+  ["Michael Penix Jr.",0,77,[86,77,77,73],"","Gunslinger",""],
+  ["Fernando Mendoza",0,77,[78,81,84,66],"","Pocket Passer","ROOKIE"],
+  ["Cam Ward",0,76,[85,73,77,72],"","Gunslinger",""]
+ ],
+ RB:[
+  ["Barry Sanders",1997,98,[99,99,95,98],"2,053 yds · 11 TD · 6.1 avg","Elusive Back",""],
+  ["Jim Brown",1963,98,[98,99,99,98],"1,863 yds · 6.4 avg · 12 TD","Power Back",""],
+  ["LaDainian Tomlinson",2006,97,[99,99,99,99],"1,815 yds · 28 TD · 31 total TD","All-Purpose",""],
+  ["Marshall Faulk",2000,96,[99,98,94,99],"1,359 rush · 830 rec · 26 TD","Receiving Back",""],
+  ["Emmitt Smith",1995,95,[97,95,99,94],"1,773 yds · 25 TD","Power Back",""],
+  ["Adrian Peterson",2012,95,[96,95,99,95],"2,097 yds · 12 TD","Power Back",""],
+  ["Walter Payton",1977,95,[99,99,99,99],"1,852 yds · 14 TD","All-Purpose",""],
+  ["Bijan Robinson",0,95,[99,99,98,98],"","All-Purpose","ALL-PRO"],
+  ["Terrell Davis",1998,94,[96,96,99,95],"2,008 yds · 21 TD","Power Back",""],
+  ["Eric Dickerson",1984,94,[99,99,92,95],"2,105 yds · 14 TD","Speed Back",""],
+  ["Christian McCaffrey",0,94,[97,95,86,99],"","Receiving Back","CPOY"],
+  ["Jahmyr Gibbs",0,93,[99,95,85,90],"","Speed Back",""],
+  ["Derrick Henry",0,91,[87,91,99,90],"","Power Back",""],
+  ["Jonathan Taylor",0,91,[88,91,99,86],"","Power Back",""],
+  ["Priest Holmes",2002,90,[96,95,87,99],"1,615 rush · 24 TD","Receiving Back",""],
+  ["Chris Johnson",2009,90,[99,96,89,92],"2,006 yds · 14 TD","Speed Back",""],
+  ["James Cook",0,90,[95,99,87,88],"","Elusive Back",""],
+  ["Jamal Lewis",2003,89,[91,89,99,89],"2,066 yds · 14 TD","Power Back",""],
+  ["De'Von Achane",0,89,[99,93,83,85],"","Speed Back",""],
+  ["Saquon Barkley",0,88,[93,92,91,92],"","All-Purpose",""],
+  ["Kenneth Walker III",0,86,[90,93,83,86],"","Elusive Back","SB MVP"],
+  ["Kyren Williams",0,85,[86,89,87,88],"","All-Purpose",""],
+  ["Josh Jacobs",0,84,[81,84,93,82],"","Power Back",""],
+  ["Travis Etienne",0,84,[93,87,78,82],"","Speed Back",""],
+  ["Ashton Jeanty",0,84,[82,84,95,80],"","Power Back",""],
+  ["TreVeyon Henderson",0,83,[92,88,79,83],"","Speed Back",""],
+  ["Breece Hall",0,83,[84,85,79,90],"","Receiving Back",""],
+  ["Bucky Irving",0,82,[85,92,79,80],"","Elusive Back",""],
+  ["David Montgomery",0,81,[79,81,90,80],"","Power Back",""],
+  ["Omarion Hampton",0,81,[80,80,90,76],"","Power Back",""],
+  ["J.K. Dobbins",0,80,[83,81,81,84],"","All-Purpose",""],
+  ["Cam Skattebo",0,80,[79,76,90,76],"","Power Back",""],
+  ["Jeremiyah Love",0,80,[84,84,82,83],"","All-Purpose","ROOKIE"],
+  ["Alvin Kamara",0,79,[79,82,72,89],"","Receiving Back",""],
+  ["Tony Pollard",0,79,[89,83,73,76],"","Speed Back",""],
+  ["Chuba Hubbard",0,79,[80,83,80,83],"","All-Purpose",""],
+  ["Isiah Pacheco",0,78,[82,83,79,79],"","All-Purpose",""],
+  ["Jadarian Price",0,76,[84,81,72,73],"","Speed Back","ROOKIE"]
+ ],
+ WR:[
+  ["Jerry Rice",1995,99,[99,99,99,99],"1,848 yds · 15 TD · 122 rec","Route Technician",""],
+  ["Randy Moss",2007,98,[99,99,99,98],"1,493 yds · 23 TD","Deep Threat",""],
+  ["Calvin Johnson",2012,97,[99,99,99,99],"1,964 yds · 5 TD · 122 rec","X-Factor",""],
+  ["Tyreek Hill",2023,96,[99,99,94,92],"1,799 yds · 13 TD · 119 rec","Deep Threat",""],
+  ["Jaxon Smith-Njigba",0,96,[94,99,98,96],"","Route Technician","OPOY"],
+  ["Marvin Harrison",2002,95,[97,99,99,97],"1,722 yds · 11 TD · 143 rec","Route Technician",""],
+  ["Puka Nacua",0,95,[93,99,99,99],"","Possession","ALL-PRO"],
+  ["Terrell Owens",2000,94,[99,99,99,97],"1,451 yds · 13 TD","X-Factor",""],
+  ["Julio Jones",2015,94,[99,99,99,97],"1,871 yds · 136 rec · 8 TD","X-Factor",""],
+  ["Ja'Marr Chase",0,94,[99,97,98,97],"","X-Factor","ALL-PRO"],
+  ["Larry Fitzgerald",2008,92,[91,94,99,99],"1,431 yds · 12 TD","Contested Catch",""],
+  ["Amon-Ra St. Brown",0,92,[93,97,93,89],"","Slot",""],
+  ["Andre Johnson",2008,91,[98,99,98,97],"1,575 yds · 8 TD","X-Factor",""],
+  ["Justin Jefferson",0,91,[98,95,96,91],"","X-Factor",""],
+  ["Steve Smith",2005,90,[97,99,95,93],"1,563 yds · 12 TD","Slot",""],
+  ["Torry Holt",2003,90,[91,99,94,96],"1,696 yds · 12 TD","Route Technician",""],
+  ["George Pickens",0,90,[99,95,89,83],"","Deep Threat",""],
+  ["Isaac Bruce",1995,89,[99,95,88,85],"1,781 yds · 13 TD","Deep Threat",""],
+  ["Reggie Wayne",2007,89,[90,94,99,97],"1,510 yds · 10 TD","Possession",""],
+  ["CeeDee Lamb",0,89,[88,98,94,88],"","Route Technician",""],
+  ["Chris Olave",0,88,[86,95,92,89],"","Route Technician",""],
+  ["Drake London",0,88,[84,85,95,97],"","Contested Catch",""],
+  ["Nico Collins",0,87,[91,93,88,86],"","X-Factor",""],
+  ["Davante Adams",0,87,[85,97,89,86],"","Route Technician",""],
+  ["Zay Flowers",0,87,[91,93,92,83],"","Slot",""],
+  ["A.J. Brown",0,87,[82,87,91,98],"","Contested Catch",""],
+  ["Courtland Sutton",0,86,[81,83,91,96],"","Contested Catch",""],
+  ["Tetairoa McMillan",0,86,[80,83,91,97],"","Contested Catch","OROY"],
+  ["Jameson Williams",0,86,[94,90,85,80],"","Deep Threat",""],
+  ["Malik Nabers",0,86,[92,90,88,86],"","X-Factor",""],
+  ["Tee Higgins",0,85,[82,85,92,93],"","Contested Catch",""],
+  ["Garrett Wilson",0,85,[83,93,90,88],"","Route Technician",""],
+  ["Ladd McConkey",0,85,[85,93,90,88],"","Route Technician",""],
+  ["DeVonta Smith",0,85,[85,93,89,88],"","Route Technician",""],
+  ["Emeka Egbuka",0,84,[85,91,88,86],"","Route Technician",""],
+  ["DK Metcalf",0,84,[92,86,83,80],"","Deep Threat",""],
+  ["Terry McLaurin",0,84,[92,88,79,81],"","Deep Threat",""],
+  ["Jaylen Waddle",0,84,[87,89,87,84],"","Slot",""],
+  ["Brian Thomas Jr.",0,83,[94,87,82,77],"","Deep Threat",""],
+  ["Rome Odunze",0,83,[76,82,90,94],"","Contested Catch",""],
+  ["Mike Evans",0,83,[80,79,89,91],"","Contested Catch",""],
+  ["Marvin Harrison Jr.",0,82,[78,80,86,92],"","Contested Catch",""],
+  ["Travis Hunter",0,81,[86,87,86,84],"","X-Factor",""],
+  ["Jordan Addison",0,81,[84,86,83,80],"","Slot",""],
+  ["Cooper Kupp",0,81,[78,82,88,86],"","Possession",""],
+  ["Deebo Samuel",0,80,[86,86,81,80],"","X-Factor",""],
+  ["Carnell Tate",0,78,[76,86,80,81],"","Route Technician","ROOKIE"],
+  ["Jordyn Tyson",0,77,[84,80,82,77],"","X-Factor","ROOKIE"],
+  ["Makai Lemon",0,77,[77,83,80,76],"","Slot","ROOKIE"]
+ ],
+ TE:[
+  ["Rob Gronkowski",2011,97,[99,99,92,99],"1,327 yds · 17 TD","Receiving TE",""],
+  ["Tony Gonzalez",2004,94,[99,99,88,99],"1,258 yds · 7 TD · 102 rec","Receiving TE",""],
+  ["Trey McBride",0,93,[99,99,84,97],"","Receiving TE","ALL-PRO"],
+  ["Antonio Gates",2005,92,[99,99,85,99],"1,101 yds · 10 TD","Receiving TE",""],
+  ["Kellen Winslow",1980,91,[99,99,85,94],"1,290 yds · 9 TD","Receiving TE",""],
+  ["Shannon Sharpe",1997,90,[98,99,82,94],"1,107 yds · 3 TD","Receiving TE",""],
+  ["Jason Witten",2007,89,[95,93,94,93],"1,145 yds · 7 TD","Balanced TE",""],
+  ["Brock Bowers",0,89,[98,96,81,90],"","Receiving TE",""],
+  ["George Kittle",0,89,[89,89,92,90],"","Balanced TE",""],
+  ["Vernon Davis",2009,87,[93,96,86,95],"965 yds · 13 TD","Move TE",""],
+  ["Kyle Pitts",0,87,[92,92,80,95],"","Move TE",""],
+  ["Mike Ditka",1964,86,[92,92,90,90],"897 yds · 5 TD","Balanced TE",""],
+  ["Travis Kelce",0,85,[94,92,74,88],"","Receiving TE",""],
+  ["Sam LaPorta",0,85,[90,89,81,91],"","Move TE",""],
+  ["Tucker Kraft",0,84,[90,91,80,93],"","Move TE",""],
+  ["Tyler Warren",0,84,[86,83,87,85],"","Balanced TE",""],
+  ["Mark Andrews",0,83,[89,88,72,86],"","Receiving TE",""],
+  ["Jake Ferguson",0,83,[86,82,85,81],"","Balanced TE",""],
+  ["Dalton Kincaid",0,82,[88,88,78,90],"","Move TE",""],
+  ["Dallas Goedert",0,82,[83,82,85,80],"","Balanced TE",""],
+  ["Colston Loveland",0,81,[85,85,76,89],"","Move TE",""],
+  ["T.J. Hockenson",0,81,[89,87,70,83],"","Receiving TE",""],
+  ["Hunter Henry",0,81,[85,84,82,80],"","Balanced TE",""],
+  ["David Njoku",0,80,[82,83,80,81],"","Balanced TE",""],
+  ["Isaiah Likely",0,79,[84,86,74,87],"","Move TE",""],
+  ["Cole Kmet",0,78,[82,78,82,78],"","Balanced TE",""],
+  ["Kenyon Sadiq",0,76,[81,82,69,83],"","Move TE","ROOKIE"],
+  ["AJ Barner",0,76,[69,69,89,72],"","Blocking TE",""]
+ ],
+ OL:[
+  ["Anthony Munoz",1988,97,[99,98,99,99],"9x All-Pro LT","Pass Protector",""],
+  ["Larry Allen",1996,96,[97,99,99,99],"11x Pro Bowl G","Run Mauler",""],
+  ["Jonathan Ogden",2000,95,[99,99,99,99],"Hall of Fame LT","Anchor",""],
+  ["Walter Jones",2005,95,[99,94,99,99],"9x Pro Bowl LT","Pass Protector",""],
+  ["Penei Sewell",0,94,[96,97,98,98],"","Anchor","ALL-PRO"],
+  ["Orlando Pace",2001,93,[99,92,99,99],"7x Pro Bowl LT","Pass Protector",""],
+  ["Mike Webster",1980,93,[98,99,99,97],"Steel Curtain center · HOF","Anchor",""],
+  ["Joe Thuney",0,93,[95,97,96,96],"","Anchor","ALL-PRO"],
+  ["Bruce Matthews",1992,92,[99,98,99,98],"14x Pro Bowl","Anchor",""],
+  ["Trent Williams",0,92,[99,90,94,97],"","Pass Protector",""],
+  ["Garett Bolles",0,91,[98,89,94,96],"","Pass Protector","ALL-PRO"],
+  ["Quinn Meinerz",0,91,[88,99,99,88],"","Run Mauler","ALL-PRO"],
+  ["Creed Humphrey",0,91,[97,96,90,96],"","Zone Blocker","ALL-PRO"],
+  ["Alan Faneca",2004,90,[88,99,99,89],"9x Pro Bowl G","Run Mauler",""],
+  ["Quenton Nelson",0,90,[85,98,97,89],"","Run Mauler",""],
+  ["Chris Lindstrom",0,90,[88,99,97,86],"","Run Mauler",""],
+  ["Tristan Wirfs",0,90,[99,87,92,96],"","Pass Protector",""],
+  ["Dermontti Dawson",1996,89,[97,98,88,96],"6x All-Pro C","Zone Blocker",""],
+  ["Lane Johnson",0,88,[97,87,89,90],"","Pass Protector",""],
+  ["Dion Dawkins",0,87,[98,85,88,90],"","Pass Protector",""],
+  ["Darnell Wright",0,87,[84,97,97,87],"","Run Mauler",""],
+  ["Tyler Linderbaum",0,87,[92,93,84,92],"","Zone Blocker",""],
+  ["Tyler Smith",0,87,[84,94,96,84],"","Run Mauler",""],
+  ["Aaron Brewer",0,86,[89,88,84,88],"","Zone Blocker",""],
+  ["Landon Dickerson",0,86,[83,97,95,83],"","Run Mauler",""],
+  ["Rashawn Slater",0,86,[95,85,88,92],"","Pass Protector",""],
+  ["Jordan Mailata",0,86,[96,85,87,91],"","Pass Protector",""],
+  ["Christian Darrisaw",0,85,[92,80,84,88],"","Pass Protector",""],
+  ["Andrew Thomas",0,85,[94,83,88,91],"","Pass Protector",""],
+  ["Cam Jurgens",0,85,[88,88,83,87],"","Zone Blocker",""],
+  ["Trey Smith",0,85,[82,95,94,81],"","Run Mauler",""],
+  ["Peter Skoronski",0,84,[86,89,90,88],"","Anchor",""],
+  ["Will Campbell",0,81,[91,77,83,87],"","Pass Protector",""],
+  ["Armand Membou",0,81,[78,92,90,81],"","Run Mauler",""],
+  ["Graham Barton",0,81,[86,86,78,86],"","Zone Blocker",""],
+  ["Grey Zabel",0,80,[75,88,86,77],"","Run Mauler",""],
+  ["Tyler Booker",0,80,[75,91,86,80],"","Run Mauler",""],
+  ["Kelvin Banks Jr.",0,79,[90,74,80,84],"","Pass Protector",""],
+  ["Spencer Fano",0,77,[88,76,80,80],"","Pass Protector","ROOKIE"],
+  ["Francis Mauigoa",0,77,[72,85,83,74],"","Run Mauler","ROOKIE"],
+  ["Olaivavega Ioane",0,77,[72,85,84,76],"","Run Mauler","ROOKIE"]
+ ],
+ DL:[
+  ["Reggie White",1987,98,[99,96,97,99],"21 sacks","Edge Rusher",""],
+  ["J.J. Watt",2014,97,[99,99,99,99],"20.5 sacks · 4 FF","Power End",""],
+  ["Aaron Donald",2018,97,[99,99,99,99],"20.5 sacks · DPOY","Interior Disruptor",""],
+  ["Myles Garrett",0,97,[99,93,96,99],"","Edge Rusher","DPOY"],
+  ["Bruce Smith",1990,96,[99,93,97,99],"19 sacks","Edge Rusher",""],
+  ["Alan Page",1971,95,[99,99,99,99],"MVP & DPOY · dominant DT","Interior Disruptor",""],
+  ["Deacon Jones",1967,94,[99,92,93,99],"26 sacks (unofficial)","Speed Rusher",""],
+  ["Michael Strahan",2001,94,[99,91,96,99],"22.5 sacks","Edge Rusher",""],
+  ["Micah Parsons",0,94,[99,90,89,99],"","Speed Rusher","ALL-PRO"],
+  ["Warren Sapp",2000,93,[99,97,99,99],"16.5 sacks","Interior Disruptor",""],
+  ["Will Anderson Jr.",0,93,[99,90,89,99],"","Edge Rusher","ALL-PRO"],
+  ["John Randle",1997,91,[97,98,99,98],"15.5 sacks","Interior Disruptor",""],
+  ["Brian Burns",0,91,[99,87,86,97],"","Speed Rusher",""],
+  ["Aidan Hutchinson",0,91,[94,97,96,92],"","Power End",""],
+  ["Cortez Kennedy",1992,90,[90,99,99,95],"14 sacks · DPOY","Run Stuffer",""],
+  ["Dwight Freeney",2004,90,[99,89,88,98],"16 sacks","Speed Rusher",""],
+  ["Danielle Hunter",0,90,[99,85,88,92],"","Edge Rusher",""],
+  ["Maxx Crosby",0,90,[99,88,89,95],"","Edge Rusher",""],
+  ["Jeffery Simmons",0,90,[94,93,96,91],"","Interior Disruptor","ALL-PRO"],
+  ["Julius Peppers",2010,89,[99,90,90,98],"8 sacks · 2 FF","Edge Rusher",""],
+  ["Nik Bonitto",0,89,[99,85,82,94],"","Speed Rusher",""],
+  ["Jalen Carter",0,89,[92,94,97,94],"","Interior Disruptor",""],
+  ["T.J. Watt",0,88,[97,82,83,92],"","Edge Rusher",""],
+  ["Chris Jones",0,88,[93,90,95,92],"","Interior Disruptor",""],
+  ["Zach Allen",0,88,[92,95,92,92],"","Power End","ALL-PRO"],
+  ["Quinnen Williams",0,87,[93,90,92,90],"","Interior Disruptor",""],
+  ["Leonard Williams",0,87,[88,90,91,90],"","Power End",""],
+  ["Jared Verse",0,87,[99,85,84,93],"","Edge Rusher",""],
+  ["Cameron Heyward",0,86,[87,92,93,90],"","Power End",""],
+  ["Josh Hines-Allen",0,86,[96,83,85,89],"","Edge Rusher",""],
+  ["Tuli Tuipulotu",0,86,[95,81,81,91],"","Edge Rusher",""],
+  ["Dexter Lawrence",0,86,[83,96,96,86],"","Run Stuffer",""],
+  ["Nick Bosa",0,86,[95,81,85,92],"","Edge Rusher",""],
+  ["Byron Young",0,85,[96,81,80,92],"","Speed Rusher",""],
+  ["Josh Sweat",0,85,[94,82,82,88],"","Edge Rusher",""],
+  ["Montez Sweat",0,85,[96,83,83,89],"","Edge Rusher",""],
+  ["Derrick Brown",0,85,[80,95,95,86],"","Run Stuffer",""],
+  ["Trey Hendrickson",0,84,[94,78,80,89],"","Edge Rusher",""],
+  ["Vita Vea",0,84,[81,95,95,84],"","Run Stuffer",""],
+  ["Cameron Jordan",0,83,[83,90,87,84],"","Power End",""],
+  ["Kobie Turner",0,83,[88,86,88,86],"","Interior Disruptor",""],
+  ["Abdul Carter",0,83,[90,79,77,88],"","Speed Rusher",""],
+  ["James Pearce Jr.",0,82,[93,76,76,89],"","Speed Rusher",""],
+  ["Mason Graham",0,81,[85,85,85,85],"","Interior Disruptor",""],
+  ["David Bailey",0,78,[88,71,70,86],"","Speed Rusher","ROOKIE"],
+  ["Rueben Bain Jr.",0,78,[78,85,83,81],"","Power End","ROOKIE"]
+ ],
+ LB:[
+  ["Lawrence Taylor",1986,98,[99,99,99,99],"20.5 sacks · DPOY · MVP","Blitzer",""],
+  ["Ray Lewis",2000,96,[99,99,99,99],"DPOY · 137 tkl","Every-Down",""],
+  ["Derrick Brooks",2002,93,[99,99,99,99],"173 tkl · 5 INT · 4 def TD · DPOY","Sideline-to-Sideline",""],
+  ["Junior Seau",1994,93,[99,97,99,99],"155 tkl · All-Pro","Every-Down",""],
+  ["Jack Lambert",1976,93,[99,91,99,96],"Steel Curtain enforcer · DPOY","Thumper",""],
+  ["Brian Urlacher",2005,92,[98,97,98,99],"DPOY · 121 tkl","Sideline-to-Sideline",""],
+  ["Mike Singletary",1985,91,[99,90,99,91],"Anchor of the 46 D","Thumper",""],
+  ["Patrick Willis",2009,91,[99,95,97,95],"152 tkl · All-Pro","Every-Down",""],
+  ["Dick Butkus",1969,90,[99,88,99,93],"Legendary enforcer","Thumper",""],
+  ["DeMarcus Ware",2008,90,[99,91,96,98],"20 sacks","Blitzer",""],
+  ["Jack Campbell",0,90,[95,94,94,91],"","Every-Down","ALL-PRO"],
+  ["Jordyn Brooks",0,89,[99,82,96,89],"","Thumper","ALL-PRO"],
+  ["Fred Warner",0,88,[93,90,93,91],"","Every-Down",""],
+  ["Zack Baun",0,88,[91,82,92,94],"","Blitzer",""],
+  ["Devin Lloyd",0,87,[84,98,85,90],"","Coverage LB",""],
+  ["Roquan Smith",0,87,[89,91,90,97],"","Sideline-to-Sideline",""],
+  ["Ernest Jones",0,86,[89,87,89,89],"","Every-Down",""],
+  ["Carson Schwesinger",0,85,[91,89,90,87],"","Every-Down","DROY"],
+  ["Azeez Al-Shaair",0,84,[86,87,88,93],"","Sideline-to-Sideline",""],
+  ["Edgerrin Cooper",0,84,[87,80,84,89],"","Blitzer",""],
+  ["Demario Davis",0,83,[89,87,86,83],"","Every-Down",""],
+  ["Nick Bolton",0,83,[86,87,89,83],"","Every-Down",""],
+  ["Patrick Queen",0,82,[85,87,84,83],"","Every-Down",""],
+  ["Zaire Franklin",0,82,[90,78,88,82],"","Thumper",""],
+  ["Terrel Bernard",0,82,[85,86,86,91],"","Sideline-to-Sideline",""],
+  ["Frankie Luvu",0,82,[86,78,84,89],"","Blitzer",""],
+  ["Jihaad Campbell",0,81,[85,82,82,88],"","Sideline-to-Sideline",""],
+  ["Foyesade Oluokun",0,81,[86,84,85,87],"","Sideline-to-Sideline",""],
+  ["Jamien Sherwood",0,81,[87,77,91,81],"","Thumper",""],
+  ["Quay Walker",0,81,[84,85,82,91],"","Sideline-to-Sideline",""],
+  ["Nakobe Dean",0,80,[83,81,84,87],"","Sideline-to-Sideline",""],
+  ["Arvell Reese",0,79,[82,73,83,84],"","Blitzer","ROOKIE"],
+  ["Sonny Styles",0,79,[81,81,79,86],"","Sideline-to-Sideline","ROOKIE"]
+ ],
+ CB:[
+  ["Deion Sanders",1994,99,[99,99,99,99],"DPOY · 3 INT-TD","Shutdown Man",""],
+  ["Darrelle Revis",2009,96,[99,99,99,99],"6 INT · Revis Island","Shutdown Man",""],
+  ["Patrick Surtain II",0,95,[99,99,96,99],"","Shutdown Man",""],
+  ["Derek Stingley Jr.",0,94,[99,99,96,99],"","Shutdown Man","ALL-PRO"],
+  ["Champ Bailey",2006,93,[99,99,99,99],"10 INT","Shutdown Man",""],
+  ["Charles Woodson",2009,93,[99,95,99,96],"DPOY · 9 INT · 3 TD","Zone Ballhawk",""],
+  ["Night Train Lane",1952,93,[99,97,99,96],"14 INT · rookie record","Zone Ballhawk",""],
+  ["Rod Woodson",1993,92,[99,99,94,99],"8 INT · DPOY","Press",""],
+  ["Quinyon Mitchell",0,92,[97,96,94,99],"","Press","ALL-PRO"],
+  ["Christian Gonzalez",0,91,[99,93,95,94],"","Shutdown Man",""],
+  ["Mel Blount",1975,90,[99,98,93,99],"11 INT","Press",""],
+  ["Cooper DeJean",0,90,[96,96,92,90],"","Slot CB","ALL-PRO"],
+  ["Ronde Barber",2001,89,[98,94,99,91],"10 INT · 24 PD · led NFL","Zone Ballhawk",""],
+  ["Aeneas Williams",1994,89,[99,95,92,97],"9 INT","Shutdown Man",""],
+  ["Devon Witherspoon",0,89,[95,95,91,92],"","Slot CB",""],
+  ["Jaycee Horn",0,89,[95,92,97,86],"","Zone Ballhawk",""],
+  ["Sauce Gardner",0,87,[94,89,86,95],"","Press",""],
+  ["Trent McDuffie",0,87,[90,94,92,87],"","Slot CB",""],
+  ["Denzel Ward",0,85,[93,87,86,92],"","Shutdown Man",""],
+  ["Marlon Humphrey",0,84,[91,88,87,92],"","Press",""],
+  ["Jaylon Johnson",0,84,[92,90,85,91],"","Shutdown Man",""],
+  ["Joey Porter Jr.",0,84,[91,86,87,91],"","Press",""],
+  ["Tariq Woolen",0,84,[86,93,88,82],"","Speed Cover",""],
+  ["Deommodore Lenoir",0,83,[89,89,87,86],"","Slot CB",""],
+  ["Kool-Aid McKinstry",0,82,[89,85,86,85],"","Slot CB",""],
+  ["Nate Wiggins",0,82,[83,91,85,80],"","Speed Cover",""],
+  ["Charvarius Ward",0,82,[88,84,81,92],"","Press",""],
+  ["Terrion Arnold",0,82,[86,87,83,89],"","Press",""],
+  ["Byron Murphy",0,82,[89,88,86,84],"","Slot CB",""],
+  ["Paulson Adebo",0,81,[85,83,92,79],"","Zone Ballhawk",""],
+  ["Will Johnson",0,81,[92,85,85,84],"","Shutdown Man",""],
+  ["Jacob Parrish",0,80,[86,86,82,80],"","Slot CB",""],
+  ["L'Jarius Sneed",0,80,[83,85,83,89],"","Press",""],
+  ["Mansoor Delane",0,78,[88,84,81,85],"","Shutdown Man","ROOKIE"]
+ ],
+ S:[
+  ["Ed Reed",2004,98,[99,99,99,97],"9 INT · DPOY · 358 ret yds","Ballhawk",""],
+  ["Ronnie Lott",1991,95,[94,95,99,99],"8 INT · enforcer","Box Safety",""],
+  ["Troy Polamalu",2008,95,[99,99,99,99],"DPOY-caliber playmaker","Hybrid",""],
+  ["Kyle Hamilton",0,93,[99,94,98,99],"","Hybrid","ALL-PRO"],
+  ["Brian Dawkins",2002,92,[98,99,99,99],"Weapon X","Hybrid",""],
+  ["Sean Taylor",2006,92,[94,90,97,99],"Feared hitter","Box Safety",""],
+  ["Paul Krause",1964,90,[99,99,99,91],"12 INT · all-time INT king","Ballhawk",""],
+  ["Steve Atwater",1991,89,[90,89,94,99],"The Smiling Assassin","Box Safety",""],
+  ["Kam Chancellor",2013,89,[88,89,93,99],"Legion of Boom enforcer","Box Safety",""],
+  ["Kevin Byard",0,89,[94,93,99,88],"","Ballhawk","ALL-PRO"],
+  ["Derwin James",0,89,[93,91,93,93],"","Hybrid",""],
+  ["John Lynch",1999,88,[89,89,91,99],"Tone-setter","Box Safety",""],
+  ["Jessie Bates III",0,88,[95,97,93,85],"","Free Safety",""],
+  ["Xavier McKinney",0,88,[95,98,94,82],"","Free Safety",""],
+  ["Talanoa Hufanga",0,86,[85,81,86,96],"","Box Safety",""],
+  ["Antoine Winfield Jr.",0,86,[89,91,90,92],"","Hybrid",""],
+  ["Kerby Joseph",0,86,[88,92,98,85],"","Ballhawk",""],
+  ["Budda Baker",0,85,[82,82,84,95],"","Box Safety",""],
+  ["Jalen Ramsey",0,85,[91,90,86,90],"","Hybrid",""],
+  ["Brian Branch",0,85,[91,90,88,88],"","Hybrid",""],
+  ["Minkah Fitzpatrick",0,84,[91,96,88,79],"","Free Safety",""],
+  ["Nick Emmanwori",0,83,[85,87,85,89],"","Hybrid",""],
+  ["Xavier Watts",0,83,[89,89,94,82],"","Ballhawk",""],
+  ["Camryn Bynum",0,81,[85,85,85,84],"","Hybrid",""],
+  ["Jevon Holland",0,81,[85,90,84,75],"","Free Safety",""],
+  ["Reed Blankenship",0,81,[86,92,88,78],"","Free Safety",""],
+  ["Quentin Lake",0,81,[88,93,87,78],"","Free Safety",""],
+  ["Nick Cross",0,81,[78,79,80,93],"","Box Safety",""],
+  ["Malaki Starks",0,80,[85,92,86,74],"","Free Safety",""],
+  ["Julian Love",0,80,[85,83,85,86],"","Hybrid",""],
+  ["Coby Bryant",0,80,[85,92,86,75],"","Free Safety",""],
+  ["Caleb Downs",0,80,[86,84,82,82],"","Hybrid","ROOKIE"],
+  ["Dillon Thieneman",0,77,[84,86,83,73],"","Free Safety","ROOKIE"]
+ ]
+};
+
+/* position meta */
+const POS_ORDER=['QB','RB','WR','TE','OL','DL','LB','CB','S'];
+const POS_MAX={QB:1,RB:1,WR:2,TE:1,OL:2,DL:2,LB:2,CB:2,S:2};
+const SIDE={QB:'off',RB:'off',WR:'off',TE:'off',OL:'off',DL:'def',LB:'def',CB:'def',S:'def'};
+const POS_NAME={QB:'Quarterback',RB:'Running Back',WR:'Wide Receiver',TE:'Tight End',OL:'O-Line',DL:'D-Line / Edge',LB:'Linebacker',CB:'Cornerback',S:'Safety'};
+const POS_COLOR={QB:'#F2B705',RB:'#5BD6A8',WR:'#5BA8FF',TE:'#9C8CFF',OL:'#C9D4DD',DL:'#FF8A5B',LB:'#FF6FA0',CB:'#54D2E8',S:'#FFC861'};
+const ATTR_LABELS={
+  QB:['ARM','ACC','AWR','MOB'], RB:['SPD','ELU','PWR','CTH'], WR:['SPD','SEP','CTH','CON'],
+  TE:['CTH','SEP','RBK','SPD'], OL:['PBK','RBK','STR','AWR'], DL:['RUSH','RUN','STR','MOT'],
+  LB:['TAK','COV','RUN','SPD'], CB:['COV','SPD','BALL','PRS'], S:['COV','RNG','BALL','RUN']
+};
+const FILLER=[73,73,73,73];
+
+/* ===================== ENGINE (tuned & calibrated) ===================== */
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+
+function fullFromPicks(picks){
+  const F={};
+  POS_ORDER.forEach(p=>{
+    const got=picks.filter(k=>k.pos===p).sort((a,b)=>b.ovr-a.ovr).map(k=>k.attrs);
+    while(got.length<POS_MAX[p]) got.push(FILLER.slice());
+    F[p]=got;
+  });
+  return F;
+}
+function evaluate(F){
+  // OFFENSE
+  const q=F.QB[0];
+  const qbPass=.36*q[1]+.34*q[2]+.20*q[0]+.10*q[3];
+  const qbMob=q[3];
+  const wv=w=>.40*w[1]+.30*w[2]+.18*w[0]+.12*w[3];
+  const w1=wv(F.WR[0]),w2=wv(F.WR[1]);
+  const wrCorps=.60*Math.max(w1,w2)+.40*Math.min(w1,w2);
+  const te=F.TE[0];
+  const tePass=.58*te[0]+.30*te[1]+.12*te[3]; const teBlock=te[2];
+  const olPass=avg(F.OL.map(o=>.85*o[0]+.15*o[3]));
+  const olRun=avg(F.OL.map(o=>.55*o[1]+.45*o[2]));
+  const r=F.RB[0];
+  const rbRun=.30*r[0]+.30*r[1]+.28*r[2]+.12*r[3];
+  const prot=.82*olPass+.18*qbMob;
+  const protFactor=clamp(prot/88,.62,1.05);
+  const weapons=.66*wrCorps+.34*tePass;
+  const passSyn=(qbPass>84&&wrCorps>84)?((qbPass-84)+(wrCorps-84))*0.16:0;
+  const PASS_O=(.52*qbPass+.48*weapons)*protFactor+passSyn;
+  const RUN_O=.50*olRun+.42*rbRun+.08*teBlock;
+  const OFF=.64*PASS_O+.30*RUN_O+.06*prot;
+  // DEFENSE
+  const dlRush=avg(F.DL.map(d=>.82*d[0]+.18*d[3]));
+  const dlRun=avg(F.DL.map(d=>.58*d[1]+.42*d[2]));
+  const lbRun=avg(F.LB.map(l=>.55*l[2]+.30*l[0]+.15*l[3]));
+  const lbCov=avg(F.LB.map(l=>l[1]));
+  const lbSpd=avg(F.LB.map(l=>l[3]));
+  const cv=c=>.58*c[0]+.22*c[2]+.12*c[1]+.08*c[3];
+  const c1=cv(F.CB[0]),c2=cv(F.CB[1]);
+  const cbCov=.58*Math.max(c1,c2)+.42*Math.min(c1,c2);
+  const sCov=avg(F.S.map(s=>.45*s[0]+.30*s[1]+.25*s[2]));
+  const sRun=avg(F.S.map(s=>s[3]));
+  const RUSH_D=.84*dlRush+.16*lbSpd;
+  const RUN_D=.44*dlRun+.40*lbRun+.16*sRun;
+  const COV_base=.50*cbCov+.30*sCov+.20*lbCov;
+  const rushBoost=clamp(.90+dlRush/750,.90,1.10);
+  const COV=COV_base*rushBoost;
+  const PASS_D=.60*COV+.40*dlRush;
+  const DEF=.60*PASS_D+.28*RUN_D+.12*RUSH_D;
+  // TEAM
+  const gap=Math.abs(OFF-DEF);
+  const twoWay=Math.min(OFF,DEF);
+  const balance=-0.12*gap+(twoWay>=92?3.5:twoWay>=88?1.8:twoWay>=84?0.6:0);
+  const team=.50*OFF+.50*DEF+balance;
+  return {OFF,DEF,team,twoWay,PASS_O,RUN_O,prot,RUSH_D,RUN_D,COV};
+}
+function record(ev){
+  const {team,twoWay}=ev;
+  const K=0.0215, CENTER=69.66;
+  const regPct=clamp(0.5+(team-CENTER)*K,0.02,0.999);
+  const regW=Math.round(17*regPct), regL=17-regW;
+  const madePO=regW>=10;
+  let poW=0,poLoss=0,out='',champ=false;
+  if(madePO){
+    const stages=[['Wild Card',80,82],['Divisional',84,86],['Conference',88,89],['Super Bowl',91,91]];
+    for(const [label,t,gate] of stages){
+      if(team>=t && twoWay>=gate){poW++;}
+      else {poLoss=1; out=label; break;}
+    }
+    if(poW===4) champ=true;
+  }
+  return {regW,regL,madePO,poW,poLoss,out,champ,totalW:regW+poW,totalL:regL+poLoss};
+}
+
+/* ===================== HISTORICAL OPPONENTS + SEASON SIM ===================== */
+/* [name, year, OFF, DEF] on the same ~58-99 scale as your offense/defense ratings */
+const REG_POOL=[
+["Buccaneers",1976,53,57],["Lions",2008,59,53],["Browns",2017,57,61],["Patriots",1990,55,59],
+["Rams",2009,55,61],["Colts",2011,59,65],["Texans",2013,61,65],["Jaguars",2020,61,59],
+["Jets",2020,57,63],["Bears",2004,61,75],["Cardinals",2018,61,67],["Broncos",2011,69,75],
+["Vikings",2011,67,65],["Raiders",2014,65,63],["Bills",2010,65,67],["Dolphins",2007,61,67],
+["Chiefs",2012,63,69],["Washington",2013,75,65],["Giants",2017,67,69],["Titans",2019,79,77],
+["Cowboys",2014,81,75],["Panthers",2003,73,81],["Jets",2009,73,85],["Ravens",2012,77,79],
+["Cardinals",2008,79,71],["Eagles",2008,81,79],["Chargers",2009,81,75],["Falcons",2012,81,73],
+["Bengals",2015,81,79],["Saints",2011,89,71],["Seahawks",2010,67,71],["Broncos",2008,75,63]
+];
+const ELITE_POOL=[
+["Bears",1985,90,99],["Patriots",2007,99,84],["Dolphins",1972,92,93],["49ers",1989,96,90],
+["Seahawks",2013,88,97],["Ravens",2000,79,99],["Steelers",1978,90,95],["Cowboys",1992,94,90],
+["Rams",1999,98,85],["Packers",1996,92,92],["49ers",1994,96,88],["Buccaneers",2002,82,97],
+["Broncos",2015,80,96],["Giants",1986,87,95],["Saints",2009,96,84],["Broncos",1998,95,87],
+["Patriots",2004,90,90],["Vikings",1998,96,84],["Panthers",2015,90,88],["Steelers",1979,91,92],
+["Chiefs",2019,95,84],["Eagles",2017,89,90],["Seahawks",2025,86,95]
+];
+const ELITE_TAG={ "Bears1985":"46 defense","Patriots2007":"18-1 juggernaut","Dolphins1972":"perfect season",
+"49ers1989":"Montana & Rice","Seahawks2013":"Legion of Boom","Ravens2000":"record-setting D","Steelers1978":"Steel Curtain",
+"Cowboys1992":"the triplets","Rams1999":"Greatest Show on Turf","Packers1996":"Favre & White","49ers1994":"Young & Rice",
+"Buccaneers2002":"Sapp & Brooks D","Broncos2015":"No Fly Zone","Giants1986":"LT's defense","Saints2009":"Brees' offense",
+"Broncos1998":"Elway & Davis","Patriots2004":"dynasty peak","Vikings1998":"Moss & Carter","Panthers2015":"Cam's MVP run",
+"Steelers1979":"Bradshaw's Steelers","Chiefs2019":"Mahomes magic","Eagles2017":"Philly Special","Seahawks2025":"Super Bowl LX champs" };
+const ovrOf=t=>(t[2]+t[3])/2;
+/* seeded randomness — Daily Draft uses the date as a seed so everyone gets the same boards */
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const seededRng=str=>mulberry32(hash32(str));
+let rand=Math.random;
+const ELITE_BANDS=[[85,89],[87,92],[89,94],[91,99]];
+const PO_LABELS=['Wild Card','Divisional','Conference','Super Bowl'];
+const rint=(a,b)=>a+Math.floor(rand()*(b-a+1));
+const rpick=a=>a[Math.floor(rand()*a.length)];
+
+/* realistic football score: build from TD(7)/FG(3) drives toward an expected total */
+function buildScore(expected){
+  let pts=0, guard=0;
+  while(pts < expected-3 && guard<11){ pts += (rand()<0.60?7:3); guard++; }
+  if(expected-pts>=2 && rand()<0.55) pts+=3;        // settle for a late FG
+  if(pts>=10 && rand()<0.06) pts+=2;                // rare safety/2pt
+  return pts;
+}
+function scoreGame(sO,sD,oO,oD,win){
+  const eF=clamp(21+0.5*(sO-oD)+(rand()*10-5),9,45);
+  const eA=clamp(21+0.5*(oO-sD)+(rand()*10-5),9,45);
+  let pf=buildScore(eF), pa=buildScore(eA);
+  // enforce the predetermined result with realistic margins (TD/FG bumps)
+  let g=0;
+  while(win && pf<=pa && g<6){ pf+=(rand()<0.6?7:3); g++; }
+  g=0;
+  while(!win && pa<=pf && g<6){ pa+=(rand()<0.6?7:3); g++; }
+  if(pf===pa){ if(win)pf+=3; else pa+=3; }                 // OT field goal
+  pf=clamp(pf,2,59); pa=clamp(pa,2,59);
+  // hard guarantee the winner is ahead, even at the score ceiling
+  if(win && pf<=pa){ pf=Math.min(59,pa+(rand()<0.5?3:7)); if(pf<=pa) pa=Math.max(2,pf-3); }
+  if(!win && pa<=pf){ pa=Math.min(59,pf+(rand()<0.5?3:7)); if(pa<=pf) pf=Math.max(2,pa-3); }
+  return {pf,pa};
+}
+function drawElite(rd,used){
+  let [lo,hi]=ELITE_BANDS[rd];
+  let c=ELITE_POOL.filter(t=>ovrOf(t)>=lo&&ovrOf(t)<=hi&&!used.has(t[0]+t[1]));
+  if(!c.length) c=ELITE_POOL.filter(t=>ovrOf(t)>=lo&&!used.has(t[0]+t[1]));
+  if(!c.length) c=ELITE_POOL.filter(t=>!used.has(t[0]+t[1]));
+  if(!c.length) c=ELITE_POOL;
+  return rpick(c);
+}
+/* Build a full game log consistent with the calibrated record (record() is source of truth). */
+function buildSeason(ev,rec){
+  const sO=ev.OFF, sD=ev.DEF, sub=(sO+sD)/2, games=[], used=new Set();
+  const results=Array(17).fill(false); const idx=[...Array(17).keys()];
+  for(let i=idx.length-1;i>0;i--){const j=rint(0,i);[idx[i],idx[j]]=[idx[j],idx[i]];}
+  for(let k=0;k<rec.regW;k++) results[idx[k]]=true;
+  const usedReg=new Set();
+  const byStrength=REG_POOL.slice().sort((a,b)=>ovrOf(b)-ovrOf(a));
+  for(let w=0;w<17;w++){
+    const win=results[w];
+    const fresh=REG_POOL.filter(t=>!usedReg.has(t));
+    let cands = win ? fresh.filter(t=>ovrOf(t)<=sub+4) : fresh.filter(t=>ovrOf(t)>=sub-3);
+    // a strong team's losses come from the best teams left, not a random bottom-feeder
+    if(!cands.length) cands = win ? fresh : byStrength.filter(t=>!usedReg.has(t)).slice(0,6);
+    if(!cands.length) cands=REG_POOL;
+    const opp=rpick(cands); usedReg.add(opp);
+    games.push({label:'Week '+(w+1),short:'Wk '+(w+1),opp,...scoreGame(sO,sD,opp[2],opp[3],win),win,playoff:false});
+  }
+  if(rec.madePO){
+    const totalPO = rec.champ?4:(rec.poW+1);
+    for(let rd=0;rd<totalPO;rd++){
+      const win = rec.champ ? true : (rd<rec.poW);
+      const opp=drawElite(rd,used); used.add(opp[0]+opp[1]);
+      games.push({label:PO_LABELS[rd],short:PO_LABELS[rd],opp,...scoreGame(sO,sD,opp[2],opp[3],win),win,playoff:true});
+    }
+  }
+  return games;
+}
+
+/* ===================== GAME STATE ===================== */
+const TOTAL_PICKS=10, TOTAL_RESPINS=2;
+let picks=[], counts={}, drafted=new Set(), respins=TOTAL_RESPINS, round=0, current=[];
+let draftLocked=false, draftTransition=false;
+
+const $=id=>document.getElementById(id);
+const screens={start:$('screen-start'),draft:$('screen-draft'),sim:$('screen-sim'),results:$('screen-results')};
+const screenTitles={start:$('startTitle'),draft:$('draftTitle'),sim:$('simTitle'),results:$('resultsTitle')};
+let seasonEv=null, seasonRec=null, seasonGames=null;
+let simRun={cancelled:false,timers:[],raf:0,done:false};
+function show(name){
+  for(const k in screens)screens[k].classList.toggle('active',k===name);
+  document.body.dataset.screen=name;
+  window.scrollTo({top:0,behavior:'auto'});
+  requestAnimationFrame(()=>screenTitles[name]?.focus({preventScroll:true}));
+}
+function announce(message){
+  const el=$('announcer');
+  el.textContent='';
+  requestAnimationFrame(()=>{el.textContent=message;});
+}
+
+function resetGame(){
+  picks=[]; drafted=new Set(); respins=TOTAL_RESPINS; round=0; draftLocked=false; draftTransition=false;
+  counts={}; POS_ORDER.forEach(p=>counts[p]=0);
+}
+function openPositions(){return POS_ORDER.filter(p=>counts[p]<POS_MAX[p]);}
+function eligiblePool(){
+  const out=[]; const open=openPositions();
+  for(const p of open) for(const pl of POOLS[p]) if(!drafted.has(pl[0])) out.push({pos:p,pl});
+  return out;
+}
+/* ===================== DAILY DRAFT ===================== */
+let gameMode='free', dailyDate=null, dailySeed=null;   // 'free' | 'daily'
+// a private random seed per player per day: your boards are unique to you, but locked so a refresh can't reroll them
+function newSeed(){
+  try{ const a=new Uint32Array(4); crypto.getRandomValues(a); return Array.from(a,x=>x.toString(36)).join(''); }
+  catch(e){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+}
+const DAILY_KEY='gridiron21-daily', HIST_KEY='gridiron21-daily-history';
+const OUTCOMES=['Missed playoffs','Wild Card exit','Divisional exit','Conference exit','Lost Super Bowl','Champion','Perfect 21-0'];
+function todayKey(d=new Date()){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function keyDate(key){const [y,m,d]=key.split('-').map(Number);return new Date(y,m-1,d);}
+function dailyLabel(key=todayKey()){return keyDate(key).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).replace(',','').toUpperCase();}   // WED SEP 30
+function dailyShort(key=todayKey()){const d=keyDate(key);return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;}                                                    // 9/30/2026
+function lsGet(k,fb){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch(e){return fb;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function intBetween(v,min,max){return Number.isInteger(v)&&v>=min&&v<=max;}
+function findPlayer(pos,name){const r=POS_ORDER.includes(pos)&&typeof name==='string'?POOLS[pos].find(x=>x[0]===name):null;return r?{pos,name:r[0],ovr:r[2],attrs:r[3],yr:r[1]}:null;}
+const SAFE_NAME=/^[A-Za-z0-9 .'\-]{2,40}$/;
+function snapshotPick(p){
+  // a saved pick is only trusted if every field is plain, bounded data — nothing that could carry markup into the page
+  if(!(p&&typeof p==='object'&&POS_ORDER.includes(p.pos)&&typeof p.name==='string'&&SAFE_NAME.test(p.name)
+    &&intBetween(p.ovr,40,99)&&Array.isArray(p.attrs)&&p.attrs.length===4&&p.attrs.every(a=>intBetween(a,40,99))
+    &&(p.yr===undefined||p.yr===0||intBetween(p.yr,1920,2100)))) return null;
+  return {pos:p.pos,name:p.name,ovr:p.ovr,attrs:p.attrs.slice(),yr:p.yr||0};
+}
+function isSavedPick(p){return !!(p&&typeof p==='object'&&(snapshotPick(p)||findPlayer(p.pos,p.name)));}
+function isDailyState(s){
+  return !!(s&&typeof s==='object'&&!Array.isArray(s)&&/^\d{4}-\d{2}-\d{2}$/.test(s.date||'')
+    && (typeof s.seed==='string'||s.seed===undefined) && Array.isArray(s.picks)
+    && s.picks.length<=TOTAL_PICKS && s.picks.every(isSavedPick)
+    && new Set(s.picks.map(p=>p.name)).size===s.picks.length
+    && POS_ORDER.every(pos=>s.picks.filter(p=>p.pos===pos).length<=POS_MAX[pos])
+    && intBetween(s.respinsUsed||0,0,TOTAL_RESPINS) && intBetween(s.round,0,TOTAL_PICKS)
+    && s.round===s.picks.length && typeof s.done==='boolean');
+}
+function cleanHistory(raw){
+  const clean={};
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))return clean;
+  for(const [date,result] of Object.entries(raw)){
+    if(/^\d{4}-\d{2}-\d{2}$/.test(date)&&result&&typeof result==='object'
+      &&intBetween(result.w,0,21)&&intBetween(result.l,0,17)&&result.w+result.l<=21&&intBetween(result.o,0,OUTCOMES.length-1)) clean[date]={w:result.w,l:result.l,o:result.o};
+  }
+  return clean;
+}
+function loadDaily(){const s=lsGet(DAILY_KEY,null);return (isDailyState(s)&&s.date===todayKey())?s:null;}
+function saveDailyProgress(done){
+  if(gameMode!=='daily')return;
+  lsSet(DAILY_KEY,{date:dailyDate,seed:dailySeed,picks:picks.map(p=>({pos:p.pos,name:p.name,ovr:p.ovr,attrs:p.attrs,yr:p.yr})),respinsUsed:TOTAL_RESPINS-respins,round,done:!!done});
+}
+function restoreFrom(state){
+  resetGame();
+  if(!isDailyState(state))return;
+  // Use the validated snapshot (so a later roster edit can't change or wipe a saved draft), else rehydrate from the bundled roster.
+  for(const s of state.picks){const pl=snapshotPick(s)||findPlayer(s.pos,s.name);if(!pl||drafted.has(pl.name))continue;picks.push(pl);counts[pl.pos]++;drafted.add(pl.name);}
+  round=picks.length; respins=Math.max(0,TOTAL_RESPINS-(state.respinsUsed||0));
+}
+function dailyInSync(){
+  if(gameMode!=='daily') return true;
+  const st=lsGet(DAILY_KEY,null); if(!isDailyState(st)||st.date!==dailyDate) return true;
+  return st.picks.map(p=>p.name).join('|')===picks.map(p=>p.name).join('|')
+      && (st.respinsUsed||0)===(TOTAL_RESPINS-respins) && !(st.done&&round<TOTAL_PICKS)
+      && (st.seed||st.date)===dailySeed;
+}
+// another tab moved this daily on — adopt its saved state instead of letting this tab fork it
+function resyncDaily(){
+  const st=lsGet(DAILY_KEY,null); if(!isDailyState(st)||st.date!==dailyDate) return;
+  draftTransition=false;
+  stopSim(); dailySeed=st.seed||st.date; restoreFrom(st);
+  if(st.done||round>=TOTAL_PICKS){ draftLocked=true; prepareSeason(); recordDailyResult(seasonRec); finish(); }
+  else { show('draft'); deal(); }
+}
+window.addEventListener('storage',e=>{ if(e.key===DAILY_KEY && gameMode==='daily' && (screens.draft.classList.contains('active')) && !dailyInSync()) resyncDaily(); });
+function outcomeIdx(rec){
+  if(rec.totalW===21&&rec.totalL===0) return 6;
+  if(rec.champ) return 5;
+  if(!rec.madePO) return 0;
+  return 1+PO_LABELS.indexOf(rec.out);
+}
+function recordDailyResult(rec){
+  const hist=cleanHistory(lsGet(HIST_KEY,{}));
+  if(!hist[dailyDate]){ hist[dailyDate]={w:rec.totalW,l:rec.totalL,o:outcomeIdx(rec)}; lsSet(HIST_KEY,hist); }
+}
+function dailyStats(){
+  const hist=cleanHistory(lsGet(HIST_KEY,{})); const keys=Object.keys(hist).sort();
+  let wins=0,titles=0,perfect=0,best=null,run=0,max=0,prev=null; const dist=OUTCOMES.map(()=>0);
+  for(const k of keys){
+    const r=hist[k]; wins+=r.w; if(r.o>=5)titles++; if(r.o===6)perfect++; dist[r.o]=(dist[r.o]||0)+1;
+    if(!best||r.w>best.w||(r.w===best.w&&r.l<best.l)) best=r;
+    const d=Date.parse(k+'T12:00:00'); run=(prev!==null&&Math.round((d-prev)/86400000)===1)?run+1:1; max=Math.max(max,run); prev=d;
+  }
+  let cur=0;
+  if(keys.length){const gap=Math.round((Date.parse(todayKey()+'T12:00:00')-prev)/86400000); cur=gap<=1?run:0;}
+  return {played:keys.length,avg:keys.length?wins/keys.length:0,titles,perfect,best,cur,max,dist,today:hist[dailyDate||todayKey()]};
+}
+function renderStats(el,highlightToday){
+  const s=dailyStats(); if(!s.played){el.innerHTML='';return false;}
+  const top=Math.max(1,...s.dist);
+  el.innerHTML=`<div class="stat-grid">
+    <div class="stat"><span class="n">${s.played}</span><span class="t">Played</span></div>
+    <div class="stat"><span class="n">${s.cur}${s.cur>=2?'🔥':''}</span><span class="t">Streak</span></div>
+    <div class="stat"><span class="n">${s.max}</span><span class="t">Best streak</span></div>
+    <div class="stat"><span class="n">${s.avg.toFixed(1)}</span><span class="t">Avg wins</span></div>
+    <div class="stat"><span class="n">${s.titles}</span><span class="t">Titles</span></div>
+    <div class="stat"><span class="n">${s.perfect}</span><span class="t">21-0s</span></div>
+  </div>`+OUTCOMES.map((lab,i)=>{
+    const hit=highlightToday&&s.today&&s.today.o===i;
+    return `<div class="dist-row${hit?' hit':''}"><span>${lab}</span><div class="dist-bar"><i style="width:${Math.max(6,s.dist[i]/top*100)}%">${s.dist[i]}</i></div></div>`;
+  }).join('');
+  return true;
+}
+function msToMidnight(){const n=new Date(),m=new Date(n);m.setHours(24,0,0,0);return m-n;}
+function fmtCountdown(ms){const t=Math.max(0,Math.floor(ms/1000));return [Math.floor(t/3600),Math.floor(t%3600/60),t%60].map(v=>String(v).padStart(2,'0')).join(':');}
+function tickCountdowns(){
+  const txt=fmtCountdown(msToMidnight());
+  document.querySelectorAll('[data-countdown]').forEach(el=>el.textContent=txt);
+  // roll the start screen over to the new board at midnight
+  if(screens.start.classList.contains('active') && $('dailyBtn').dataset.day!==todayKey()) renderStartPanel();
+  if(screens.results.classList.contains('active') && gameMode==='daily' && !$('dailyRes').dataset.stale && dailyDate!==todayKey()) renderDailyBanner();
+}
+function renderStartPanel(){
+  const n=dailyLabel(), st=loadDaily(), btn=$('dailyBtn'), sub=$('dailySub');
+  btn.dataset.day=todayKey();
+  if(st&&st.done){ btn.innerHTML=`<span class="nw">DAILY · ${n}</span> <span class="nw">✓ VIEW RESULT</span>`; sub.innerHTML=`Next board in <b data-countdown>${fmtCountdown(msToMidnight())}</b>`; }
+  else if(st&&st.picks.length){ btn.innerHTML=`<span class="nw">RESUME DAILY</span> <span class="nw">· ${n} · RD ${Math.min(10,st.round+1)}/10</span>`; sub.innerHTML='Your draft is saved — pick up where you left off'; }
+  else { btn.innerHTML=`<span class="nw">PLAY DAILY</span> <span class="nw">· ${n}</span>`; sub.innerHTML='Your one locked-in draft for today'; }
+  const box=$('startStats'); box.hidden=!renderStats(box,false);
+}
+function renderDailyBanner(){
+  // if midnight has already passed, the next board isn't a countdown away — it's live now
+  const stale=dailyDate!==todayKey();
+  $('dailyRes').innerHTML = stale
+    ? `<span class="nw">Daily · ${dailyLabel(dailyDate)}</span> · <span class="nw">${dailyLabel()} board is live</span>`
+    : `<span class="nw">Daily · ${dailyLabel(dailyDate)}</span> · <span class="nw">next in <span data-countdown>${fmtCountdown(msToMidnight())}</span></span>`;
+  $('dailyRes').dataset.stale = stale ? '1' : '';
+}
+function setModeBadge(){
+  const b=$('modeBadge'); const d=gameMode==='daily';
+  b.textContent=d?`DAILY · ${dailyLabel(dailyDate)}`:'FREE PLAY'; b.classList.toggle('daily',d);
+}
+function startDaily(){
+  stopSim(); gameMode='daily'; dailyDate=todayKey();
+  const st=loadDaily();
+  if(st){ dailySeed=st.seed||st.date; restoreFrom(st); } else { dailySeed=newSeed(); resetGame(); saveDailyProgress(false); }
+  setModeBadge();
+  if(st&&(st.done||round>=TOTAL_PICKS)){ draftLocked=true; prepareSeason(); recordDailyResult(seasonRec); finish(); return; }
+  show('draft'); deal();
+}
+function startFree(){ stopSim(); gameMode='free'; dailyDate=null; resetGame(); setModeBadge(); show('draft'); deal(); }
+
+const LEGEND_DRAW_WEIGHT=0.4;   // legends appear less often in offers
+function deal(){
+  const pool=eligiblePool();
+  // daily boards come from your private daily seed + round + re-spins used: random for you, but a refresh shows the same cards
+  rand = gameMode==='daily' ? seededRng(`${dailySeed}|board|r${round}|s${TOTAL_RESPINS-respins}`) : Math.random;
+  // weighted sample of 3 distinct cards — legends are rarer
+  current=[];
+  const bag=pool.slice();
+  for(let k=0;k<3 && bag.length;k++){
+    let total=0;
+    const w=bag.map(x=>{const ww=(x.pl[1]>0?LEGEND_DRAW_WEIGHT:1);total+=ww;return ww;});
+    let r=rand()*total, idx=0;
+    for(;idx<bag.length;idx++){ r-=w[idx]; if(r<=0) break; }
+    if(idx>=bag.length) idx=bag.length-1;
+    current.push(bag[idx]); bag.splice(idx,1);
+  }
+  rand=Math.random;
+  renderDraft();
+  // phones: tapping DRAFT on the third card leaves you scrolled down — bring the new board back into view
+  const top=$('draftPrompt').getBoundingClientRect().top;
+  if(top<0) window.scrollBy({top:top-12,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+}
+
+/* ===================== RENDER: DRAFT ===================== */
+const BUILD_BLURB={
+ "Pocket Passer":"Surgical from the pocket; reads coverage, limited mobility.",
+ "Gunslinger":"Big arm, fires into tight windows.",
+ "Dual-Threat":"Beats you with arm and legs; extends every play.",
+ "Field General":"Pre-snap maestro; protects the football.",
+ "Scrambler":"Improv artist who creates outside structure.",
+ "Power Back":"Downhill hammer; wears defenses down.",
+ "Elusive Back":"Makes the first man miss in a phone booth.",
+ "Receiving Back":"Matchup nightmare out of the backfield.",
+ "All-Purpose":"Three-down back; does a bit of everything.",
+ "Speed Back":"Home-run hitter; takes it the distance.",
+ "Deep Threat":"Field-stretcher; lethal on the vertical shot.",
+ "Possession":"Chain-mover with reliable hands.",
+ "Route Technician":"Gets open on anyone with footwork.",
+ "Slot":"Quick-twitch separator from the slot.",
+ "Contested Catch":"Wins jump balls and red-zone fades.",
+ "X-Factor":"Do-it-all weapon defenses must locate.",
+ "Receiving TE":"A big slot; mismatch down the seam.",
+ "Blocking TE":"Sixth lineman who sets the edge.",
+ "Move TE":"Flexed-out chess piece; runs like a receiver.",
+ "Balanced TE":"Blocks and catches at a high level.",
+ "Pass Protector":"Locks down the edge in pass pro.",
+ "Run Mauler":"Drives defenders off the ball.",
+ "Anchor":"Stout, dependable cornerstone up front.",
+ "Zone Blocker":"Athletic; thrives in a zone scheme.",
+ "Edge Rusher":"Bends the corner; gets to the quarterback.",
+ "Run Stuffer":"Two-gapping wall against the run.",
+ "Interior Disruptor":"Collapses the pocket from the inside.",
+ "Power End":"Sets a heavy edge against run and pass.",
+ "Speed Rusher":"First-step explosion off the edge.",
+ "Thumper":"Downhill enforcer; fills the gap.",
+ "Coverage LB":"Erases tight ends and backs in space.",
+ "Sideline-to-Sideline":"Rangy; chases everything down.",
+ "Blitzer":"Twitchy pressure off the second level.",
+ "Every-Down":"Stays on the field on all three downs.",
+ "Shutdown Man":"Travels with and erases No. 1 receivers.",
+ "Zone Ballhawk":"Reads the QB; takes it the other way.",
+ "Press":"Jams at the line and disrupts timing.",
+ "Slot CB":"Quick feet to mirror in the slot.",
+ "Speed Cover":"Pure wheels to run with anybody.",
+ "Free Safety":"Single-high range, sideline to sideline.",
+ "Box Safety":"Plays like a linebacker near the line.",
+ "Ballhawk":"Centerfielder with a nose for the ball.",
+ "Hybrid":"Positionless; lines up anywhere."
+};
+function tagClass(t){ return t==='ROOKIE'?'rookie':(t==='ALL-PRO'?'':'major'); }
+function buildBlurb(a){return BUILD_BLURB[a]||'Versatile contributor.';}
+function attrChips(pos,attrs){
+  const labs=ATTR_LABELS[pos];
+  return attrs.map((v,i)=>`<div class="attr"><span class="lab">${labs[i]}</span><span class="val" style="color:${attrColor(v)}">${v}</span></div>`).join('');
+}
+function attrColor(v){ if(v>=92)return 'var(--gold2)'; if(v>=86)return 'var(--good)'; if(v>=78)return 'var(--ink)'; if(v>=72)return 'var(--mut)'; return 'var(--mut2)';}
+function renderDraft(){
+  $('roundNum').textContent=round+1;
+  $('progBar').style.width=(round/TOTAL_PICKS*100)+'%';
+  $('draftProgress').setAttribute('aria-valuenow',round);
+  $('draftProgress').setAttribute('aria-valuetext',`${round} of ${TOTAL_PICKS} picks made`);
+  $('respinN').textContent=respins;
+  $('respinBtn').disabled=respins<=0||draftTransition;
+  const open=openPositions().map(p=>p).join(' · ');
+  $('draftPrompt').innerHTML=`Round <b>${round+1}</b> — choose one. Open slots: <b>${open}</b>`;
+  const wrap=$('cards'); wrap.innerHTML='';
+  current.forEach((c,idx)=>{
+    const [name,yr,ovr,attrs,info,arch,tag]=c.pl; const pos=c.pos; const col=POS_COLOR[pos];
+    const legend=yr>0;
+    const el=document.createElement('div'); el.className='card'+(legend?' legend':'');
+    const ovrSmall = legend ? `OVR · <span class="yr">'${String(yr).slice(2)}</span>` : `OVR`;
+    const bottom = legend
+      ? `<div class="statline"><span class="szn">${yr} season:</span> ${info}</div>`
+      : `<div class="statline build"><span class="szn">Build:</span> ${buildBlurb(arch)}</div>`;
+    el.innerHTML=`
+      <div class="topstripe" style="background:linear-gradient(90deg,${col},transparent)"></div>
+      <div class="hd">
+        <div>
+          <span class="pos-badge" style="background:${col}">${pos}</span>
+          <div class="side-tag" style="color:${SIDE[pos]==='off'?'var(--off)':'var(--def)'}">${SIDE[pos]==='off'?'OFFENSE':'DEFENSE'} · ${POS_NAME[pos]}</div>
+        </div>
+        <div class="ovr-wrap"><div class="ovr">${ovr}</div><small>${ovrSmall}</small></div>
+      </div>
+      <div class="pname">${name}${legend?'<span class="legend-tag">LEGEND</span>':''}${!legend&&tag?`<span class="award-tag ${tagClass(tag)}">${tag}</span>`:''}</div>
+      <div class="arch">${arch}</div>
+      <div class="attrs">${attrChips(pos,attrs)}</div>
+      ${bottom}
+      <button class="pick-btn" data-i="${idx}" aria-label="Draft ${name}, ${POS_NAME[pos]}, ${ovr} overall">DRAFT</button>`;
+    el.querySelector('.pick-btn').addEventListener('click',()=>pick(idx));
+    wrap.appendChild(el);
+  });
+  renderDepth();
+}
+function renderDepth(justPos){
+  const d=$('depth'); d.innerHTML='';
+  $('rosterCnt').textContent=`${picks.length} / ${TOTAL_PICKS} picks`;
+  POS_ORDER.forEach(p=>{
+    const got=picks.filter(k=>k.pos===p);
+    for(let i=0;i<POS_MAX[p];i++){
+      const slot=document.createElement('div');
+      const player=got[i];
+      const filled=!!player;
+      slot.className='slot '+(filled?'':'empty')+(justPos===p&&i===got.length-1?' just':'');
+      slot.innerHTML=`<span class="sp" style="color:${POS_COLOR[p]}">${p}</span>
+        <span class="nm">${filled?player.name:'— open —'}</span>
+        <span class="so">${filled?player.ovr:''}</span>`;
+      d.appendChild(slot);
+    }
+  });
+}
+function pick(idx){
+  if(draftLocked || draftTransition || round>=TOTAL_PICKS) return;
+  if(!dailyInSync()){ resyncDaily(); return; }
+  const c=current[idx]; if(!c) return;
+  draftTransition=true;
+  const [name,yr,ovr,attrs]=c.pl;
+  picks.push({pos:c.pos,name,ovr,attrs,yr});
+  counts[c.pos]++; drafted.add(name); round++;
+  saveDailyProgress(round>=TOTAL_PICKS);
+  document.querySelectorAll('#cards .pick-btn').forEach(b=>b.disabled=true);
+  document.querySelector(`#cards .pick-btn[data-i="${idx}"]`)?.closest('.card')?.classList.add('picked');
+  renderDepth(c.pos);
+  announce(`Drafted ${name}, ${POS_NAME[c.pos]}, ${ovr} overall. ${TOTAL_PICKS-round} picks remaining.`);
+  if(round>=TOTAL_PICKS){
+    draftLocked=true;
+    $('respinBtn').disabled=true;
+    setTimeout(goToSim,260);
+  }
+  else { setTimeout(()=>{draftTransition=false;deal();},260); }
+}
+function respin(){
+  if(respins<=0 || draftLocked || draftTransition || round>=TOTAL_PICKS)return;
+  if(!dailyInSync()){ resyncDaily(); return; }
+  draftTransition=true;
+  respins--; saveDailyProgress(false);
+  document.querySelectorAll('#cards .pick-btn').forEach(b=>b.disabled=true);
+  $('respinBtn').disabled=true;
+  announce(`Board re-spun. ${respins} re-spins remaining.`);
+  setTimeout(()=>{draftTransition=false;deal();},180);
+}
+
+/* ===================== RESULTS ===================== */
+function letter(v){
+  if(v>=95)return'A+';if(v>=92)return'A';if(v>=89)return'A-';if(v>=86)return'B+';
+  if(v>=83)return'B';if(v>=80)return'B-';if(v>=77)return'C+';if(v>=74)return'C';
+  if(v>=71)return'C-';if(v>=68)return'D+';if(v>=64)return'D';return'F';
+}
+function gradeColor(v){if(v>=89)return'var(--good)';if(v>=80)return'var(--gold2)';if(v>=72)return'var(--warn)';return'var(--bad)';}
+function barColor(v){if(v>=89)return'#00D800';if(v>=80)return'#F8B800';if(v>=72)return'#FF7A18';return'#FC5454';}
+
+function finish(){
+  stopSim();
+  const ev=seasonEv||evaluate(fullFromPicks(picks));
+  const rec=seasonRec||record(ev);
+  const games=seasonGames||buildSeason(ev,rec);
+  // record
+  const perfect=(rec.totalW===21&&rec.totalL===0);
+  const recEl=$('recordBig');
+  recEl.className='record'+(perfect?' perfect':'');
+  recEl.innerHTML=`<span class="w">${rec.totalW}</span><span class="sep">-</span><span class="l">${rec.totalL}</span>`;
+  // verdict
+  const oppName=g=>g?`the ${g.opp[1]} ${g.opp[0]}`:'a tough opponent';
+  let verdict,sub;
+  if(perfect){verdict='PERFECT SEASON · 21-0';sub='You drafted an immortal. Seventeen straight, then four wins over all-time-great teams — a balanced juggernaut on both sides of the ball. This almost never happens.';}
+  else if(rec.champ){verdict='SUPER BOWL CHAMPIONS';sub=`You took home the title, knocking off ${oppName(games[games.length-1])} in the Super Bowl. ${rec.regL===1?'One regular-season slip':rec.regL+' regular-season losses'} kept it from perfect, but a ring is a ring.`;}
+  else if(rec.madePO){
+    const where=rec.out, sb=where==='Super Bowl';
+    verdict= sb ? 'LOST THE SUPER BOWL' : `OUT IN THE ${where.toUpperCase()}`;
+    const roundTxt= sb ? 'the Super Bowl' : `the ${where} round`;
+    const lop=Math.abs(ev.OFF-ev.DEF)>9;
+    const exit=games[games.length-1];
+    sub = lop
+      ? `A ${rec.regW}-${rec.regL} regular season, then ${oppName(exit)} ended it in ${roundTxt}. Your roster leaned too hard on one side of the ball — the all-time greats expose the imbalance.`
+      : `A ${rec.regW>=14?'dominant':rec.regW>=12?'strong':'solid'} ${rec.regW}-${rec.regL} season that ended against ${oppName(exit)} in ${roundTxt}. You were ${sb?'one win from a ring':'close'} — a little more top-end talent gets you past the legends.`;
+  } else {
+    verdict='MISSED THE PLAYOFFS';
+    sub=`A ${rec.totalW}-${rec.totalL} finish — not enough firepower to break through. Too many slots were left to average starters, or the talent was spread too thin.`;
+  }
+  $('verdict').textContent=verdict;
+  $('verdict').className='verdict'+((perfect||rec.champ)?' gold':'');
+  $('bannerSub').textContent=sub;
+
+  // personal best (free play) or daily banner + stats
+  const daily=gameMode==='daily';
+  if(daily){
+    $('pbLine').innerHTML='';
+    $('dailyRes').hidden=false;
+    renderDailyBanner();
+    $('dailyStatsWrap').hidden=!renderStats($('dailyStatsRes'),true);
+  } else {
+    $('dailyRes').hidden=true; $('dailyStatsWrap').hidden=true;
+    renderPersonalBest(rec);
+  }
+  $('againBtn').textContent = daily ? 'FREE PLAY' : 'DRAFT AGAIN';
+  lastShare=buildShareText(ev,rec,games);
+  $('shareOut').hidden=true;
+
+  // season log
+  renderLog($('resultLog'),games,true);
+
+  // grade cards
+  setG('gOff','vOff',ev.OFF,'offense');
+  setG('gTeam','vTeam',ev.team,'team');
+  setG('gDef','vDef',ev.DEF,'defense');
+
+  // unit report
+  const units=[
+    ['Passing Offense',ev.PASS_O,'OFF'],
+    ['Pass Rush',ev.RUSH_D,'DEF'],
+    ['Rushing Offense',ev.RUN_O,'OFF'],
+    ['Run Defense',ev.RUN_D,'DEF'],
+    ['Pass Protection',ev.prot,'OFF'],
+    ['Coverage',ev.COV,'DEF'],
+  ];
+  const uw=$('units'); uw.innerHTML='';
+  units.forEach(([nm,val,sd])=>{
+    const pct=clamp((val-55)/(100-55)*100,3,100);
+    const el=document.createElement('div'); el.className='unit';
+    el.innerHTML=`<div class="un">${nm}<span class="sd" style="color:${sd==='OFF'?'var(--off)':'var(--def)'}">${sd}</span></div>
+      <div class="ug" style="color:${gradeColor(val)}">${letter(val)}</div>
+      <div class="bar"><i style="width:0%;background:${barColor(val)}" data-w="${pct}"></i></div>`;
+    uw.appendChild(el);
+  });
+  requestAnimationFrame(()=>uw.querySelectorAll('.bar>i').forEach(i=>i.style.width=i.dataset.w+'%'));
+
+  // strengths / weaknesses (from unit metrics + standout players + average-filled groups)
+  const ranked=units.map(([nm,val])=>({nm,val})).sort((a,b)=>b.val-a.val);
+  const filledGroups=POS_ORDER.filter(p=>counts[p]===0); // entirely average
+  const sBox=$('strengths'), wBox=$('weaknesses'); sBox.innerHTML=''; wBox.innerHTML='';
+  // standout drafted players (90+ OVR) headline the strengths
+  const stars=picks.filter(p=>p.ovr>=90).sort((a,b)=>b.ovr-a.ovr).slice(0,3);
+  stars.forEach(p=>{ sBox.innerHTML+=`<div class="sw-item"><span class="dot"></span><b>${p.name}</b> (${p.ovr} OVR) anchors the ${POS_NAME[p.pos]}</div>`; });
+  ranked.slice(0,3).filter(u=>u.val>=82).forEach(u=>{
+    sBox.innerHTML+=`<div class="sw-item"><span class="dot"></span><b>${u.nm}</b> — graded ${letter(u.val)}</div>`;
+  });
+  if(!sBox.innerHTML) sBox.innerHTML=`<div class="sw-item"><span class="dot"></span>No standout units — a roster of solid-but-unspectacular pieces.</div>`;
+  const weakUnits=ranked.slice(-3).reverse().filter(u=>u.val<82);
+  weakUnits.forEach(u=>{ wBox.innerHTML+=`<div class="sw-item"><span class="dot"></span><b>${u.nm}</b> — only ${letter(u.val)}</div>`; });
+  if(filledGroups.length){
+    const names=filledGroups.map(p=>POS_NAME[p]).join(', ');
+    wBox.innerHTML+=`<div class="sw-item"><span class="dot"></span>Average starters at <b>${names}</b></div>`;
+  }
+  if(!wBox.innerHTML) wBox.innerHTML=`<div class="sw-item"><span class="dot"></span>No glaring holes — a remarkably complete roster.</div>`;
+
+  // aftermath analysis, synergy narrative, projected per-player production
+  renderAnalysis(ev,rec);
+  renderSynergy(ev);
+  renderProjections(ev);
+
+  // final depth chart
+  const df=$('depthFinal'); df.innerHTML='';
+  POS_ORDER.forEach(p=>{
+    const got=picks.filter(k=>k.pos===p).sort((a,b)=>b.ovr-a.ovr);
+    for(let i=0;i<POS_MAX[p];i++){
+      const player=got[i];
+      const el=document.createElement('div');
+      el.className='df-slot'+(player?'':' fill');
+      el.innerHTML=`<div class="r1"><span class="sp" style="color:${POS_COLOR[p]}">${p}</span><span class="so">${player?player.ovr:74}</span></div>
+        <div class="nm">${player?player.name:'Average Starter'}</div>`;
+      df.appendChild(el);
+    }
+  });
+
+  show('results');
+  announce(`${verdict}. Final record: ${rec.totalW} wins and ${rec.totalL} losses.`);
+}
+/* ---------- personal best + share ---------- */
+const PB_KEY='gridiron21-best';
+let lastShare='';
+function better(a,b){ return !b || a.w>b.w || (a.w===b.w && a.l<b.l); }
+function isStoredRecord(r){return !!(r&&typeof r==='object'&&intBetween(r.w,0,21)&&intBetween(r.l,0,17)&&r.w+r.l<=21);}
+function renderPersonalBest(rec){
+  const cur={w:rec.totalW,l:rec.totalL};
+  let prev=null;
+  try{ prev=JSON.parse(localStorage.getItem(PB_KEY)||'null'); }catch(e){ prev=null; }
+  if(!isStoredRecord(prev))prev=null;
+  const isNew=better(cur,prev);
+  if(isNew){ try{ localStorage.setItem(PB_KEY,JSON.stringify(cur)); }catch(e){} }
+  const best=isNew?cur:prev;
+  const line=$('pbLine');
+  line.textContent=best?`Personal best: ${best.w}-${best.l}`:'';
+  if(best&&isNew&&prev){const badge=document.createElement('span');badge.className='new';badge.textContent='NEW BEST';line.append(' ',badge);}
+}
+const SHARE_URL='';   // optional: paste the public game link here after publishing so share cards always include it
+function publicGameUrl(){
+  if(SHARE_URL) return SHARE_URL;
+  // inside an embedded frame (e.g. a hosted artifact viewer) location.href is the frame's internal address, not a link people can open
+  try{ if(window.top!==window.self) return ''; }catch(e){ return ''; }
+  try{return /^https?:$/.test(location.protocol)?location.href.split('#')[0]:'';}catch(e){return '';}
+}
+function buildShareText(ev,rec,games){
+  const reg=games.filter(g=>!g.playoff).map(g=>g.win?'🟩':'🟥').join('');
+  const po=games.filter(g=>g.playoff).map(g=>g.win?'🟩':'🟥').join('');
+  const perfect=rec.totalW===21&&rec.totalL===0;
+  const outcome = perfect ? 'PERFECT SEASON 🏆' : rec.champ ? 'Super Bowl champs 🏆' : rec.madePO ? (rec.out==='Super Bowl'?'Lost the Super Bowl':`Out in the ${rec.out}`) : 'Missed the playoffs';
+  const star=picks.slice().sort((a,b)=>b.ovr-a.ovr)[0];
+  const starTxt=star?`${star.name}${star.yr>0?` '${String(star.yr).slice(2)}`:''} (${star.ovr})`:'';
+  if(gameMode==='daily'){
+    const s=dailyStats();
+    return [
+      `GRIDIRON 21-0 · DAILY ${dailyShort(dailyDate)} 🏈  ${rec.totalW}-${rec.totalL}`,
+      outcome,
+      `OFF ${letter(ev.OFF)} · TEAM ${letter(ev.team)} · DEF ${letter(ev.DEF)}`,
+      reg + (po?`  |  ${po}`:''),
+      s.cur>=2?`🔥 ${s.cur}-day streak`:'',
+      publicGameUrl()
+    ].filter(Boolean).join('\n');
+  }
+  return [
+    `GRIDIRON 21-0 🏈  ${rec.totalW}-${rec.totalL}`,
+    outcome,
+    `OFF ${letter(ev.OFF)} · TEAM ${letter(ev.team)} · DEF ${letter(ev.DEF)}`,
+    reg + (po?`  |  ${po}`:''),
+    starTxt?`Top pick: ${starTxt}`:'',
+    publicGameUrl()
+  ].filter(Boolean).join('\n');
+}
+async function shareResult(){
+  const box=$('shareOut'), ta=$('shareText'), msg=$('shareMsg');
+  ta.value=lastShare; box.hidden=false;
+  let ok=false;
+  // phones: open the native share sheet (Messages, X, etc.); a cancel is respected, not treated as failure
+  if(navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+    try{ await navigator.share({text:lastShare}); msg.textContent='Shared!'; return; }
+    catch(e){ if(e&&e.name==='AbortError'){ msg.textContent='Copy the text below to share'; return; } }
+  }
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ await navigator.clipboard.writeText(lastShare); ok=true; } }catch(e){}
+  if(!ok){ try{ ta.focus(); ta.select(); ok=document.execCommand('copy'); }catch(e){} }
+  msg.textContent = ok ? 'Copied — paste it anywhere' : 'Copy the text below to share';
+  if(!ok){ ta.focus(); ta.select(); }
+}
+
+function setG(gId,vId,val,cls){
+  const g=$(gId); g.textContent=letter(val); g.style.color=cls==='team'?'var(--gold2)':(cls==='offense'?'var(--off)':'var(--def)');
+  $(vId).textContent=val.toFixed(1)+' rating';
+}
+
+/* ===================== AFTERMATH: PROJECTIONS · SYNERGY · ANALYSIS ===================== */
+const cl0=(v,a,b)=>Math.max(a,Math.min(b,Math.round(v)));
+function findYr(pos,name){const r=POOLS[pos].find(p=>p[0]===name);return r?r[1]:0;}
+function draftedBy(pos){return picks.filter(p=>p.pos===pos).sort((a,b)=>b.ovr-a.ovr);}
+
+// project a single player's stat line given team context (ev)
+function projLine(pos,pl,ev,rank){
+  const a=pl.attrs;
+  if(pos==='QB'){
+    // weapons (PASS_O already blends in receiver quality) + own accuracy + protection
+    const yds=cl0(2900+(ev.PASS_O-80)*60+(a[1]-80)*8+(ev.prot-80)*6,2400,5300);
+    const td=cl0(19+(ev.PASS_O-80)*1.0+(a[0]-80)*0.12,10,52);
+    const int=cl0(16-(a[2]-80)*0.35-(ev.prot-80)*0.05,3,22);
+    const rush=cl0((a[3]-72)*15,0,1300);
+    return `${yds.toLocaleString()} pass yds · ${td} TD · ${int} INT`+(rush>400?` · ${rush} rush`:'');
+  }
+  if(pos==='RB'){
+    // run blocking (RUN_O is 50% O-line) + protection + own power/speed
+    const yds=cl0(650+(ev.RUN_O-75)*30+(ev.prot-80)*5+(a[2]-80)*5+(a[0]-80)*4,320,2050);
+    const td=cl0(6+(ev.RUN_O-75)*0.40+(a[2]-80)*0.15,2,26);
+    const rec=cl0((a[3]-70)*1.6,0,90);
+    return `${yds.toLocaleString()} rush yds · ${td} TD`+(rec>22?` · ${rec} rec · ${cl0(rec*8.4,0,900)} yds`:'');
+  }
+  if(pos==='WR'){
+    // QB play (inside PASS_O) + own route/hands; WR1 gets the bigger share
+    const share=rank===0?1:0.78;
+    const yds=cl0((880+(ev.PASS_O-80)*22+(a[1]-80)*9+(a[2]-80)*5)*share,320,1900);
+    const rec=cl0(yds/13.5,20,150);
+    const td=cl0((7+(ev.PASS_O-80)*0.48+(a[2]-80)*0.2)*share,2,22);
+    return `${rec} rec · ${yds.toLocaleString()} yds · ${td} TD`;
+  }
+  if(pos==='TE'){
+    const yds=cl0(430+(ev.PASS_O-80)*11+(a[0]-80)*10,150,1380);
+    const rec=cl0(yds/11,12,120);
+    const td=cl0(4+(a[0]-80)*0.17,1,17);
+    return `${rec} rec · ${yds.toLocaleString()} yds · ${td} TD`;
+  }
+  if(pos==='OL'){
+    const pancakes=cl0(20+(a[1]-80)*0.9,8,68);
+    return `Pass-block ${letter(a[0])} · ~${pancakes} pancakes`;
+  }
+  if(pos==='DL'){
+    // sacks driven by the player's pass-rush, helped by coverage (corners force QB to hold it).
+    // run-stuffers (low PRS) post few sacks but pile up TFL.
+    const sk=cl0((a[0]-79)*0.80+(ev.COV-82)*0.16,0,19);
+    const tfl=cl0(4+(a[1]-78)*0.45,1,22);
+    return `${sk} sacks · ${tfl} TFL`;
+  }
+  if(pos==='LB'){
+    // tackles climb when a stout front (RUN_D, anchored by the D-line) keeps blockers off them
+    const tkl=cl0(68+(a[0]-78)*1.9+(ev.RUN_D-80)*0.7,38,168);
+    const sk=cl0((a[3]-83)*0.34,0,11);
+    const int=cl0((a[1]-82)*0.18,0,6);
+    return `${tkl} tkl · ${sk} sk · ${int} INT`;
+  }
+  if(pos==='CB'){
+    // a real pass rush (RUSH_D) forces hurried throws into coverage → more picks
+    const int=cl0(2+(a[2]-80)*0.32+(ev.RUSH_D-82)*0.12,0,11);
+    const pd=cl0(7+(a[0]-80)*0.5,3,26);
+    return `${int} INT · ${pd} PD`;
+  }
+  if(pos==='S'){
+    const int=cl0(2+(a[2]-80)*0.30+(ev.RUSH_D-82)*0.10,0,10);
+    const tkl=cl0(56+(a[3]-78)*1.7,35,130);
+    const pd=cl0(6+(a[0]-80)*0.4,2,18);
+    return `${tkl} tkl · ${int} INT · ${pd} PD`;
+  }
+  return '';
+}
+function projRow(pos,pl,ev,rank){
+  const col=POS_COLOR[pos]; const yr=pl?findYr(pos,pl.name):0;
+  const name = pl?`${pl.name}${yr>0?`<span class="leg">'${String(yr).slice(2)}</span>`:''}`:'<small>Average Starter</small>';
+  const stat = pl?projLine(pos,pl,ev,rank):'<span class="ps" style="color:var(--mut2)">league-average production</span>';
+  return `<div class="proj-row"><span class="pp" style="background:${col}">${pos}</span>
+    <div><div class="pn">${name}</div>${pl?`<div class="ps">${stat}</div>`:`<div class="ps" style="color:var(--mut2)">replacement-level numbers</div>`}</div></div>`;
+}
+function renderProjections(ev){
+  const offSlots=[['QB',1],['RB',1],['WR',2],['TE',1],['OL',2]];
+  const defSlots=[['DL',2],['LB',2],['CB',2],['S',2]];
+  const build=slots=>slots.map(([pos,n])=>{const got=draftedBy(pos);let out='';for(let i=0;i<n;i++){out+=projRow(pos,got[i]||null,ev,i);}return out;}).join('');
+  $('projOff').innerHTML=build(offSlots);
+  $('projDef').innerHTML=build(defSlots);
+}
+
+function topName(pos){const g=draftedBy(pos);return g.length?g[0].name:null;}
+function renderSynergy(ev){
+  const L=[]; const A=(ic,html)=>L.push({ic,html});
+  const qb=topName('QB'), wr=topName('WR'), rb=topName('RB'), dl=topName('DL'), cb=topName('CB'), te=topName('TE');
+  const gap=Math.abs(ev.OFF-ev.DEF);
+  if(ev.prot>=85 && ev.RUN_O>=82 && rb) A('🛡️',`Your line gave up almost nothing up front (pass-block <b>${letter(ev.prot)}</b>) and bulldozed run lanes — <b>${rb||'your back'}</b> ran downhill all year, and the play-action it set up kept safeties frozen.`);
+  if(ev.PASS_O>=92) A('🎯',`Elite quarterback play and a stacked receiver room compounded: defenses couldn't roll coverage to <b>${wr||'one side'}</b> without leaving someone else uncovered. The passing game was greater than the sum of its parts.`);
+  else if(ev.PASS_O>=86 && wr && qb) A('🎯',`<b>${qb}</b> and <b>${wr}</b> built real chemistry — when defenses bracketed the top option, the timing throws underneath still moved the chains.`);
+  if(ev.RUSH_D>=86 && ev.COV>=86) A('🔗',`Pressure and coverage fed each other: <b>${dl||'the rush'}</b> collapsed the pocket while <b>${cb||'the secondary'}</b> blanketed downfield, so quarterbacks had nowhere to go and no time to find it.`);
+  else if(ev.RUSH_D>=88 && ev.COV<82) A('💨',`A ferocious pass rush (<b>${letter(ev.RUSH_D)}</b>) papered over a thinner secondary — <b>${dl||'the front'}</b> got home before coverage was ever really tested.`);
+  else if(ev.COV>=88 && ev.RUSH_D<82) A('🕸️',`Lockdown coverage (<b>${letter(ev.COV)}</b>) bought a modest rush extra time; quarterbacks held the ball waiting for windows that never opened.`);
+  if(gap>9 && ev.OFF>ev.DEF) A('⚖️',`This was a shootout roster: the offense (<b>${letter(ev.OFF)}</b>) had to carry a defense (<b>${letter(ev.DEF)}</b>) that couldn't always get the stop. Fun in November — fragile in January.`);
+  else if(gap>9 && ev.DEF>ev.OFF) A('⚖️',`A smothering defense (<b>${letter(ev.DEF)}</b>) kept every game within reach while the offense (<b>${letter(ev.OFF)}</b>) did just enough to win it.`);
+  else if(ev.OFF>=86 && ev.DEF>=86) A('💎',`Balanced and loaded on both sides (OFF <b>${letter(ev.OFF)}</b> / DEF <b>${letter(ev.DEF)}</b>) — the two-way profile that actually survives a deep playoff run.`);
+  const fillers=POS_ORDER.filter(p=>counts[p]===0);
+  if(fillers.length>=3) A('🧩',`With <b>${fillers.length}</b> starting spots left to average players, the stars had to cover for thin depth — one injury away from a real problem.`);
+  if(!L.length) A('📋',`A balanced, unspectacular roster — no single pairing carried it, but nothing dragged it down either.`);
+  $('synergy').innerHTML=L.slice(0,5).map(x=>`<div class="syn-item"><span class="si">${x.ic}</span><span>${x.html}</span></div>`).join('');
+}
+
+function renderAnalysis(ev,rec){
+  const units=[['passing attack',ev.PASS_O],['run game',ev.RUN_O],['pass protection',ev.prot],
+    ['pass rush',ev.RUSH_D],['run defense',ev.RUN_D],['coverage',ev.COV]];
+  const sorted=units.slice().sort((a,b)=>b[1]-a[1]);
+  const best=sorted[0], second=sorted[1], worst=sorted[sorted.length-1];
+  const fillers=POS_ORDER.filter(p=>counts[p]===0).map(p=>POS_NAME[p]);
+  const bal = Math.abs(ev.OFF-ev.DEF)<=6 ? 'a balanced two-way' : (ev.OFF>ev.DEF?'an offense-tilted':'a defense-tilted');
+  let s = rec.madePO
+    ? `You won on the back of your <b>${best[0]}</b> (graded <b>${letter(best[1])}</b>), backed by the <b>${second[0]}</b>. `
+    : `Your best units were the <b>${best[0]}</b> (<b>${letter(best[1])}</b>) and the <b>${second[0]}</b>, but it wasn't enough. `;
+  s+=`The offense graded <b>${letter(ev.OFF)}</b> and the defense <b>${letter(ev.DEF)}</b> — ${bal} build. `;
+  s+=`Where it leaked was the <b>${worst[0]}</b> (only <b>${letter(worst[1])}</b>)`;
+  s+= fillers.length?`, and average starters at <b>${fillers.join(', ')}</b> thinned the margin for error. `:`. `;
+  if(rec.totalW===21&&rec.totalL===0) s+=`None of it mattered in the end — every unit held up just enough, every week, for a flawless 21-0.`;
+  else if(rec.champ) s+=`It held together long enough to win it all — ${rec.regL===1?'the one blemish came on an off day':'the regular-season losses came on off days'}, not from a structural hole.`;
+  else if(rec.madePO) s+=`That weakness is ultimately what ${rec.out==='Super Bowl'?'the Super Bowl':'the '+rec.out+' round'} exposed — the all-time greats found it and leaned on it.`;
+  else s+=`Too many of those soft spots stacked up to climb out of the regular-season pack.`;
+  $('analysis').innerHTML=s;
+}
+
+/* ===================== SEASON SIM PLAYBACK ===================== */
+function eliteTag(opp){return ELITE_TAG[opp[0]+opp[1]]||'';}
+function renderLog(container,games,withDivider){
+  container.innerHTML='';
+  let lastPO=false;
+  games.forEach(g=>{
+    if(withDivider && g.playoff && !lastPO){
+      const d=document.createElement('div'); d.className='log-row po';
+      d.innerHTML=`<span class="lw" style="color:var(--gold2)">PLAYOFFS</span><span class="lo" style="color:var(--mut2)">vs all-time greats</span><span></span><span></span>`;
+      container.appendChild(d); lastPO=true;
+    }
+    const row=document.createElement('div'); row.className='log-row'+(g.playoff?' po':'');
+    const tag=g.playoff?` · <span style="color:var(--mut2)">${eliteTag(g.opp)}</span>`:'';
+    row.innerHTML=`<span class="lw">${g.short}</span>
+      <span class="lo"><b>${g.opp[0]}</b> '${String(g.opp[1]).slice(2)}${tag}</span>
+      <span class="ls">${g.pf}-${g.pa}</span>
+      <span class="lr ${g.win?'w':'l'}">${g.win?'W':'L'}</span>`;
+    container.appendChild(row);
+  });
+}
+
+function prepareSeason(){
+  seasonEv=evaluate(fullFromPicks(picks));
+  seasonRec=record(seasonEv);
+  // your daily season is locked too: re-opening it replays the same games
+  rand = gameMode==='daily' ? seededRng(`${dailySeed}|season|`+picks.map(p=>p.name).sort().join(',')) : Math.random;
+  seasonGames=buildSeason(seasonEv,seasonRec);
+  rand=Math.random;
+}
+function goToSim(){
+  prepareSeason();
+  if(gameMode==='daily'){ saveDailyProgress(true); recordDailyResult(seasonRec); }
+  simRun={cancelled:false,timers:[],raf:0,done:false};
+  $('simW').textContent='0'; $('simL').textContent='0';
+  $('liveLog').innerHTML='';
+  $('youOD').innerHTML=`<span class="nw"><b>OFF</b> ${seasonEv.OFF.toFixed(0)}</span> · <span class="nw"><b>DEF</b> ${seasonEv.DEF.toFixed(0)}</span>`;
+  $('simMode').textContent = gameMode==='daily' ? `Daily · ${dailyLabel(dailyDate)} · ` : '';
+  show('sim');
+  playSeason();
+}
+
+function stopSim(){
+  simRun.cancelled=true;
+  simRun.timers.forEach(t=>clearTimeout(t)); simRun.timers=[];
+  if(simRun.raf) cancelAnimationFrame(simRun.raf);
+}
+function wait(ms){return new Promise(res=>{const t=setTimeout(res,ms);simRun.timers.push(t);});}
+
+async function playSeason(){
+  let w=0,l=0;
+  for(let i=0;i<seasonGames.length;i++){
+    if(simRun.cancelled) return;
+    const g=seasonGames[i];
+    await playGame(g);
+    if(simRun.cancelled) return;
+    if(g.win)w++; else l++;
+    $('simW').textContent=w; $('simL').textContent=l;
+    prependLog(g);
+    if(!g.win && g.playoff){ await wait(450); break; } // playoff loss ends season
+    await wait(140);
+  }
+  if(!simRun.cancelled){ await wait(500); finish(); }
+}
+function prependLog(g){
+  const c=$('liveLog'); const row=document.createElement('div');
+  row.className='log-row'+(g.playoff?' po':'');
+  const tag=g.playoff?` · <span style="color:var(--mut2)">${eliteTag(g.opp)}</span>`:'';
+  row.innerHTML=`<span class="lw">${g.short}</span>
+    <span class="lo"><b>${g.opp[0]}</b> '${String(g.opp[1]).slice(2)}${tag}</span>
+    <span class="ls">${g.pf}-${g.pa}</span>
+    <span class="lr ${g.win?'w':'l'}">${g.win?'W':'L'}</span>`;
+  c.insertBefore(row,c.firstChild);
+}
+// each game plays in ~1 second
+function playGame(g){
+  return new Promise(resolve=>{
+    $('simPhase').textContent=g.playoff?'Playoffs':'Regular Season';
+    $('simGameNo').textContent=g.label;
+    $('muRound').textContent=g.playoff?g.label.toUpperCase():g.label;
+    $('muRound').className='mu-roundlbl'+(g.playoff?' po':'');
+    $('oppNm').textContent=g.opp[0]; $('oppYr').textContent="'"+String(g.opp[1]).slice(2)+(g.playoff?' · '+eliteTag(g.opp):'');
+    $('oppOD').innerHTML=`<span class="nw"><b>OFF</b> ${g.opp[2]}</span> · <span class="nw"><b>DEF</b> ${g.opp[3]}</span>`;
+    $('youYr').textContent='drafted';
+    const sY=$('scoreYou'), sO=$('scoreOpp'), res=$('muResult');
+    sY.textContent=g.pf; sO.textContent=g.pa;
+    res.className='mu-result '+(g.win?'win':'loss'); res.textContent=g.win?'WIN':'LOSS';
+    const t=setTimeout(resolve,860); simRun.timers.push(t);
+  });
+}
+
+/* ===================== WIRING ===================== */
+$('startBtn').addEventListener('click',startFree);
+$('dailyBtn').addEventListener('click',startDaily);
+$('againBtn').addEventListener('click',startFree);
+$('reviewBtn').addEventListener('click',()=>{renderStartPanel();show('start');});
+(function(){ let ok=true; try{ localStorage.setItem('gridiron21-probe','1'); localStorage.removeItem('gridiron21-probe'); }catch(e){ ok=false; } $('storageWarn').hidden=ok; })();
+document.body.dataset.screen='start';
+renderStartPanel();
+setInterval(tickCountdowns,1000);
+$('respinBtn').addEventListener('click',respin);
+$('simSkip').addEventListener('click',()=>{ stopSim(); finish(); });
+$('shareBtn').addEventListener('click',shareResult);
+// keyboard: 1/2/3 to pick, R to respin (draft only)
+document.addEventListener('keydown',e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(screens.draft.classList.contains('active')){
+    if(e.key==='1'||e.key==='2'||e.key==='3'){const i=+e.key-1;if(current[i])pick(i);}
+    if(e.key.toLowerCase()==='r')respin();
+  } else if(screens.sim.classList.contains('active')){
+    if(e.key.toLowerCase()==='s'||e.key==='Escape'){ stopSim(); finish(); }
+  }
+});
+</script>
+</body>
+</html>
